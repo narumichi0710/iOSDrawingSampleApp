@@ -6,10 +6,16 @@
 //
 
 import SwiftUI
+import Service
 
 public struct DrawingRootView: View {
+    @StateObject private var interactor: DrawingInteractor
     
-    public init () {}
+    public init (
+        drawingService: DrawingService
+    ) {
+        _interactor = .init(wrappedValue: .init(drawingService: drawingService))
+    }
     
     public var body: some View {
         Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
@@ -18,6 +24,6 @@ public struct DrawingRootView: View {
 
 struct SwiftUIView_Previews: PreviewProvider {
     static var previews: some View {
-        DrawingRootView()
+        DrawingRootView(drawingService: ServiceFactoryStub().drawingService)
     }
 }

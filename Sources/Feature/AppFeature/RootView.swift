@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Service
+import DrawingFeature
 
 public struct RootView: View {
     private let factory: ServiceFactory
@@ -16,7 +17,7 @@ public struct RootView: View {
     }
 
     public var body: some View {
-        VStack {}
+        DrawingRootView(drawingService: factory.drawingService)
     }
 }
 
