@@ -18,14 +18,15 @@ let package = Package(
             name: "Service",
             targets: ["Service"]
         ),
+        .library(
+            name: "Repository",
+            targets: ["Repository"]
+        ),
     ],
     targets: [
         .target(
             name: "AppFeature",
-            dependencies: [
-                "DrawingFeature",
-                "Service"
-            ],
+            dependencies: ["DrawingFeature", "Service"],
             path: "Sources/Feature/AppFeature"
         ),
         .target(
@@ -35,8 +36,23 @@ let package = Package(
         ),
         .target(
             name: "Service",
-            dependencies: [],
+            dependencies: ["Repository"],
             path: "Sources/Core/Service"
+        ),
+        .target(
+            name: "Repository",
+            dependencies: ["Local", "Network"],
+            path: "Sources/Core/Repository"
+        ),
+        .target(
+            name: "Local",
+            dependencies: [],
+            path: "Sources/Core/Local"
+        ),
+        .target(
+            name: "Network",
+            dependencies: [],
+            path: "Sources/Core/Network"
         ),
         .testTarget(
             name: "AppFeatureTests",
