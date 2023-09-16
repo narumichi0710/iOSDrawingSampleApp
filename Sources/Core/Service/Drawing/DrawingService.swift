@@ -8,13 +8,17 @@
 import Foundation
 import Repository
 
-public protocol DrawingService {
+public protocol DrawingService {}
 
+public final class DrawingServiceImpl: DrawingService {
+    let drawingRepository: DrawingRepository
+    
+    public init(drawingRepository: DrawingRepository) {
+        self.drawingRepository = drawingRepository
+    }
 }
 
-public final class DrawingServiceImpl {}
-
-public final class DrawingServiceStub: DrawingService, ObservableObject {
+public final class DrawingServiceStub: DrawingService {
     let drawingRepository: DrawingRepository
     
     public init(drawingRepository: DrawingRepository) {
