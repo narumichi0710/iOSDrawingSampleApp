@@ -11,6 +11,10 @@ let package = Package(
             targets: ["AppFeature"]
         ),
         .library(
+            name: "DrawingFeature",
+            targets: ["DrawingFeature"]
+        ),
+        .library(
             name: "Service",
             targets: ["Service"]
         ),
@@ -18,7 +22,16 @@ let package = Package(
     targets: [
         .target(
             name: "AppFeature",
-            dependencies: ["Service"]
+            dependencies: [
+                "DrawingFeature",
+                "Service"
+            ],
+            path: "Sources/Feature/AppFeature"
+        ),
+        .target(
+            name: "DrawingFeature",
+            dependencies: ["Service"],
+            path: "Sources/Feature/DrawingFeature"
         ),
         .target(
             name: "Service",
