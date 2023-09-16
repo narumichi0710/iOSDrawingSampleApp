@@ -6,13 +6,21 @@
 //
 
 import Foundation
+import Repository
 
-public protocol ServiceFactory {}
+public protocol ServiceFactory {
+    var drawingService: DrawingService { get }
 
-public final class ServiceFactoryImpl: ServiceFactory {
-    public init() {}
 }
 
+public final class ServiceFactoryImpl {}
+
 public final class ServiceFactoryStub: ServiceFactory {
+    public lazy var drawingRepository: DrawingRepository = DrawingRepositoryStub()
+    
+    public lazy var drawingService: DrawingService = DrawingServiceStub(
+        drawingRepository: drawingRepository
+    )
+    
     public init() {}
 }

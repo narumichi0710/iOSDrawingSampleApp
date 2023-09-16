@@ -14,7 +14,7 @@ public struct SwiftUIApp: App {
 
     public var body: some Scene {
         WindowGroup {
-            RootView(factory: ServiceFactoryImpl())
+            RootView(factory: ServiceFactoryStub())
         }
     }
 }
