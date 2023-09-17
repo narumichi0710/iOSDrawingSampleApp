@@ -10,35 +10,42 @@ import Foundation
 public struct DrawingList: Codable {
     public var id: UUID
     public var name: String
-    public var imageURL: String
     public var created: Date
     public var updated: Date?
     public var deleted: Data?
-    public var drawing: [Drawing]
+    public var drawingInfos: [DrawingInfo]
     
-    public init(id: UUID, name: String, imageURL: String, created: Date, updated: Date? = nil, deleted: Data? = nil, drawing: [Drawing]) {
+    public init(id: UUID, name: String, created: Date, updated: Date? = nil, deleted: Data? = nil, drawingInfos: [DrawingInfo]) {
         self.id = id
         self.name = name
-        self.imageURL = imageURL
         self.created = created
         self.updated = updated
         self.deleted = deleted
-        self.drawing = drawing
+        self.drawingInfos = drawingInfos
     }
 
     static let mockDrawingList = DrawingList(
         id: UUID(),
         name: "mockDrawingList",
-        imageURL: "https://picsum.photos/400",
         created: .now,
         updated: nil,
         deleted: nil,
-        drawing: [
-            .mockDrawing,
-            .mockDrawing,
-            .mockDrawing
+        drawingInfos: [
+            .init(id: UUID(), name: "drawing_1"),
+            .init(id: UUID(), name: "drawing_2"),
+            .init(id: UUID(), name: "drawing_3")
         ]
     )
+}
+
+public struct DrawingInfo: Codable {
+    public var id: UUID
+    public var name: String
+    
+    public init(id: UUID, name: String) {
+        self.id = id
+        self.name = name
+    }
 }
 
 public struct Drawing: Codable {

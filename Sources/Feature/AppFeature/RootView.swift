@@ -8,6 +8,8 @@
 import SwiftUI
 import Service
 import DrawingFeature
+import ViewExtension
+import Repository // File関連実装後削除
 
 public struct RootView: View {
     private let factory: ServiceFactory
@@ -17,7 +19,21 @@ public struct RootView: View {
     }
 
     public var body: some View {
-        DrawingRootView(drawingService: factory.drawingService)
+        NavigationLayout {
+            List {
+                ForEach(mockFiles, id: \.id) {
+                    NavigationLink(
+                        $0.name,
+                        destination: DrawingRootView(
+                            file: $0,
+                            drawingService: factory.drawingService
+                        )
+                    )
+                }
+            }
+            .navigationTitle("files")
+            .navigationBarTitleDisplayMode(.inline)
+        }
     }
 }
 

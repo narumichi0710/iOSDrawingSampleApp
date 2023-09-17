@@ -55,7 +55,7 @@ struct ToolBar<TrailingButton: View>: ViewModifier {
                 action: { dismiss() },
                 label: {
                     Image(systemName: "chevron.backward")
-                        .foregroundColor(Color.white)
+                        .foregroundColor(Color.black)
                 }
             )
         }

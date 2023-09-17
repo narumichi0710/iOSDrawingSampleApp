@@ -21,9 +21,7 @@ public final class ServiceFactoryImpl: ServiceFactory {
 }
 
 public final class ServiceFactoryStub: ServiceFactory {
-    public lazy var drawingService: DrawingService = DrawingServiceStub(
-        drawingRepository: DrawingRepositoryStub()
-    )
+    public lazy var drawingService: DrawingService = DrawingServiceStub()
     
     public init() {}
 }

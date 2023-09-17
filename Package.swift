@@ -30,12 +30,12 @@ let package = Package(
     targets: [
         .target(
             name: "AppFeature",
-            dependencies: ["DrawingFeature", "Service"],
+            dependencies: ["DrawingFeature", "Service", "ViewExtension"],
             path: "Sources/Feature/AppFeature"
         ),
         .target(
             name: "DrawingFeature",
-            dependencies: ["Service"],
+            dependencies: ["Service", "ViewExtension"],
             path: "Sources/Feature/DrawingFeature"
         ),
         .target(

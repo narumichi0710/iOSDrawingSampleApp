@@ -39,7 +39,7 @@ public final class DrawingServiceImpl: DrawingService {
     public init(
         drawingRepository: DrawingRepository
     ) {
-        self.drawingRepository = drawingRepository
+        self.drawingRepository = DrawingRepositoryStub()
     }
 }
 
