@@ -22,6 +22,10 @@ let package = Package(
             name: "Repository",
             targets: ["Repository"]
         ),
+        .library(
+            name: "ViewExtension",
+            targets: ["ViewExtension"]
+        ),
     ],
     targets: [
         .target(
@@ -53,6 +57,11 @@ let package = Package(
             name: "Network",
             dependencies: [],
             path: "Sources/Core/Network"
+        ),
+        .target(
+            name: "ViewExtension",
+            dependencies: [],
+            path: "Sources/Extension/ViewExtension"
         ),
         .testTarget(
             name: "AppFeatureTests",
