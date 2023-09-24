@@ -40,18 +40,20 @@ public struct DrawingRootView: View {
 
     private func header() -> some View {
         Group {
-            if let selectedDrawingList = interactor.selectedDrawingList {
+            if let selectedList = interactor.selectedList {
                 VStack {
                     Divider()
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack {
-                            ForEach(selectedDrawingList.drawingInfos, id: \.id) { info in
+                            ForEach(selectedList.layerInfos, id: \.id) { info in
                                 Button {
                                     Task {
                                         await interactor.fetchDrawing(from: info.id)
                                     }
                                 } label: {
+                                    let isSelected = interactor.selectedLayer?.id == info.id
                                     Text(info.name)
+                                        .foregroundColor(isSelected ? Color.black : Color.gray)
                                 }
                             }
                         }
@@ -60,6 +62,10 @@ public struct DrawingRootView: View {
                     Divider()
                 }
                 .frame(maxWidth: .infinity)
+                .onAppear {
+                    guard let info = selectedList.layerInfos.first else { return }
+                    Task { await interactor.fetchDrawing(from: info.id) }
+                }
             }
         }
     }
@@ -75,41 +81,21 @@ public struct DrawingRootView: View {
                 }
 
             }
-    
-            if let selectedDrawing = interactor.selectedDrawing {
-                ZStack {
-                    // お絵描きの線を表示
-                    Path { path in
-                        path.move(to: points.first ?? CGPoint.zero)
-                        for point in points {
-                            path.addLine(to: point)
-                        }
-                    }
-                    .stroke(Color.red, lineWidth: 2)
-                }
-                .gesture(
-                    DragGesture()
-                        .onChanged({ value in
-                            points.append(value.location)
-                        })
-                        .onEnded({ value in
-                            // お絵描きデータの保存など
-                        })
+            if let selectedLayer = interactor.selectedLayer {
+                PaintCanvas(
+                    layer: selectedLayer,
+                    interactor: interactor
                 )
             }
         }
     }
     
     private func footer() -> some View {
-        EmptyView()
-    }
-}
-
-struct SwiftUIView_Previews: PreviewProvider {
-    static var previews: some View {
-        DrawingRootView(
-            file: mockFiles.first!,
-            drawingService: ServiceFactoryStub().drawingService
-        )
+        Button("新しいキャンバスを追加") {
+            Task {
+               await interactor.createLayer()
+            }
+        }
+        .padding(8)
     }
 }

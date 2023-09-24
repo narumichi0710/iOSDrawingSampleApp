@@ -12,8 +12,12 @@ import Repository // for DrawingList
 
 public class DrawingInteractor: ObservableObject {
     let drawingService: DrawingService
-    @Published private(set) var selectedDrawingList: DrawingList?
-    @Published private(set) var selectedDrawing: Drawing?
+    @Published private(set) var selectedList: DrawingList?
+    @Published private(set) var selectedLayer: DrawingLayer?
+
+    public init(drawingService: DrawingService) {
+        self.drawingService = drawingService
+    }
 
     @MainActor
     func fetchDrawingList(from drawingListId: UUID) async {
@@ -21,7 +25,7 @@ public class DrawingInteractor: ObservableObject {
     
         switch result {
         case let .success(res):
-            selectedDrawingList = res
+            selectedList = res
         case let .failure(e):
             print("failure fetchDrawingList \(e)")
         }
@@ -33,13 +37,26 @@ public class DrawingInteractor: ObservableObject {
     
         switch result {
         case let .success(res):
-            selectedDrawing = res
+            selectedLayer = res
         case let .failure(e):
             print("failure selectedDrawing \(e)")
         }
     }
 
-    public init(drawingService: DrawingService) {
-        self.drawingService = drawingService
+    
+    @MainActor
+    func createLayer() async {
+        guard let selectedList else { return }
+        let number = selectedList.layerInfos.count + 1
+        let drawing = DrawingLayer.create(UUID(), "drawing_\(number)")
+        let result = await drawingService.createDrawing(drawing)
+        switch result {
+        case let .success(res):
+            selectedLayer = res
+            self.selectedList!.layerInfos.append(.init(id: res.id, name: res.name))
+        case let .failure(e):
+            print("failure selectedDrawing \(e)")
+        }
     }
+
 }

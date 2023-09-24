@@ -9,11 +9,11 @@ import Foundation
 import Repository
 
 extension DrawingServiceImpl {
-    public func fetchDrawing(from drawingId: UUID) async -> Result<Drawing, Error> {
+    public func fetchDrawing(from drawingId: UUID) async -> Result<DrawingLayer, Error> {
         await drawingRepository.fetchDrawing(from: drawingId)
     }
     
-    public func createDrawing(_ drawing: Drawing) async -> Result<Drawing, Error> {
+    public func createDrawing(_ drawing: DrawingLayer) async -> Result<DrawingLayer, Error> {
         await drawingRepository.createDrawing(drawing)
     }
     
@@ -25,7 +25,7 @@ extension DrawingServiceImpl {
         await drawingRepository.deleteDrawing(by: drawingId)
     }
     
-    public func duplicateDrawing(from drawingId: UUID) async -> Result<Drawing, Error> {
+    public func duplicateDrawing(from drawingId: UUID) async -> Result<DrawingLayer, Error> {
         await drawingRepository.duplicateDrawing(from: drawingId)
     }
 }
