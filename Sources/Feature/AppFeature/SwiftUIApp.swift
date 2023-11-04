@@ -7,9 +7,10 @@
 
 import Service
 import SwiftUI
+import Combine
 
 public struct SwiftUIApp: App {
-
+    
     public init() {}
 
     public var body: some Scene {

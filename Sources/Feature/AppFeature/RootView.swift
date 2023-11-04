@@ -19,20 +19,6 @@ public struct RootView: View {
     }
 
     public var body: some View {
-        NavigationLayout {
-            List {
-                ForEach(mockFiles, id: \.id) {
-                    NavigationLink(
-                        $0.name,
-                        destination: DrawingRootView(
-                            file: $0,
-                            drawingService: factory.drawingService
-                        )
-                    )
-                }
-            }
-            .navigationTitle("files")
-            .navigationBarTitleDisplayMode(.inline)
-        }
+        DrawingRootView(drawingService: factory.drawingService)
     }
 }
