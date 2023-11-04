@@ -19,6 +19,17 @@ public struct RootView: View {
     }
 
     public var body: some View {
-        DrawingRootView(drawingService: factory.drawingService)
+        NavigationLayout {
+            List {
+                ForEach(mockFiles, id: \.id) {
+                    NavigationLink(
+                        $0.name,
+                        destination: DrawingRootView(drawingService: factory.drawingService, file: $0)
+                    )
+                }
+            }
+            .navigationTitle("drawing sample app")
+            .navigationBarTitleDisplayMode(.inline)
+        }
     }
 }

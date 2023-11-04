@@ -15,9 +15,10 @@ public struct DrawingRootView: View {
     @StateObject private var interactor: DrawingInteractor
     
     public init (
-        drawingService: DrawingService
+        drawingService: DrawingService,
+        file: File
     ) {
-        _interactor = .init(wrappedValue: .init(drawingService: drawingService))
+        _interactor = .init(wrappedValue: .init(drawingService: drawingService, file: file))
     }
     
     public var body: some View {
@@ -26,9 +27,15 @@ public struct DrawingRootView: View {
             content()
             Spacer(minLength: 0)
             footer()
-            Spacer(minLength: 0)
         }
-        .navigationToolbar(interactor.file.name, dismiss: { dismiss() })
+        .navigationToolbar(
+            title: interactor.file.name,
+            dismiss: { dismiss() },
+            trailingButton: Button(
+                action: { interactor.layer.reset() },
+                label: { Text("Reset") }
+            )
+        )
     }
     
     private func content() -> some View {
@@ -41,9 +48,8 @@ public struct DrawingRootView: View {
     }
 
     private func footer() -> some View {
-        Button("reset") {
-            interactor.layer.reset()
+        HStack {
+            // 色設定
         }
-        .padding(8)
     }
 }
