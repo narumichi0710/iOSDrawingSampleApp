@@ -8,11 +8,14 @@
 import SwiftUI
 import Service
 import ViewExtension
-import Repository // File関連実装後削除
+import Repository
 
 public struct DrawingRootView: View {
     @Environment(\.dismiss) var dismiss
     @StateObject private var interactor: DrawingInteractor
+    
+    private var selectedType: DrawingObjectType { interactor.setting.type }
+    private var selectedColor: DrawingObjectColor { interactor.setting.color }
     
     public init (
         drawingService: DrawingService,
@@ -44,12 +47,55 @@ public struct DrawingRootView: View {
             content: { $0 },
             placeholder: { ProgressView() }
         )
-        .overlay { DrawingCanvas(layer: interactor.layer) }
+        .overlay { DrawingCanvas(setting: interactor.setting, layer: interactor.layer) }
     }
 
     private func footer() -> some View {
-        HStack {
-            // 色設定
+        VStack(spacing: 16.0) {
+            // 色選択
+            HStack(spacing: 16.0) {
+                ForEach(DrawingObjectColor.allCases, id: \.self) { color in
+                    Button {
+                        interactor.changeDrawingColor(color)
+                    } label: {
+                        Circle()
+                            .fill(color.toUIColor)
+                            .frame(width: 30, height: 30)
+                            .overlay(
+                                Circle()
+                                    .stroke(Color.white, lineWidth: selectedColor == color ? 3 : 0)
+                            )
+                            .shadow(radius: selectedColor == color ? 5 : 0)
+                            .scaleEffect(selectedColor == color ? 1.2 : 1)
+                            .animation(.easeInOut, value: selectedColor == color)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                }
+            }
+    
+            // 描画種別選択
+            HStack(spacing: 16.0) {
+                ForEach(DrawingObjectType.allCases, id: \.self) { type in
+                    Button {
+                        interactor.changeDrawingType(type)
+                    } label: {
+                        Image(systemName: type.iconName)
+                            .font(.title)
+                            .foregroundColor(selectedType == type ? .white : .gray)
+                            .padding()
+                            .background(selectedType == type ? Color.blue : Color.clear)
+                            .cornerRadius(8)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(selectedType == type ? Color.blue : Color.gray, lineWidth: 1)
+                            )
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .scaleEffect(selectedType == type ? 1.1 : 1)
+                    .animation(.easeInOut, value: selectedType == type)
+                }
+            }
         }
+        .padding()
     }
 }

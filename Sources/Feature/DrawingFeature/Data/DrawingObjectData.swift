@@ -13,7 +13,7 @@ import ViewExtension
 public class DrawingObjectData: Equatable, ObservableObject {
     public var data: DrawingObjectProperty
     public var id: UUID { data.id }
-    public var color: Color { .init(hex: data.color) }
+    public var color: DrawingObjectColor { data.color }
     public var type: DrawingObjectType { data.type }
     public var state: DrawingObjectState { data.state }
     
@@ -54,16 +54,16 @@ public class DrawingPencilObjectData: DrawingObjectData {
         super.init(data: entity)
     }
 
-    public static func create() -> DrawingPencilObjectData {
+    public static func create(_ setting: DrawingSettingData) -> DrawingPencilObjectData {
         .init(entity: .init(
             id: UUID(),
             type: .pencil,
             state: .created,
             start: .init(),
             end: .init(),
-            color: "0000FF",
+            color: setting.color,
             points: .init(),
-            lineWidth: 3
+            lineWidth: setting.lineWidth
         ))
     }
 }
@@ -73,4 +73,8 @@ public extension DrawingObjectData {
     func asPencil() -> DrawingPencilObjectData? {
         self as? DrawingPencilObjectData
     }
+}
+
+public extension DrawingObjectColor {
+    var toUIColor: Color { .init(hex: rawValue) }
 }

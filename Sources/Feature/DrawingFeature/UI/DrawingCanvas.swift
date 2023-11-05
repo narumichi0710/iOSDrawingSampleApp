@@ -11,13 +11,14 @@ import Repository
 import ViewExtension
 
 public struct DrawingCanvas: View {
-    private var selectedTool = DrawingObjectType.pencil
+    private let setting: DrawingSettingData
     @ObservedObject private var layer: DrawingLayerData
 
-    public init(layer: DrawingLayerData) {
+    public init(setting: DrawingSettingData, layer: DrawingLayerData) {
+        self.setting = setting
         self.layer = layer
     }
-
+    
     public var body: some View {
         ZStack {
             // 編集済のオブジェクト
@@ -51,9 +52,9 @@ public struct DrawingCanvas: View {
     }
 
     private func onCreatedDrawing() {
-        switch selectedTool {
+        switch setting.type {
         case .pencil:
-            layer.editingObject = DrawingPencilObjectData.create()
+            layer.editingObject = DrawingPencilObjectData.create(setting)
         default: break
         }
         layer.apply()

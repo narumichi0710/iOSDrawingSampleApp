@@ -13,7 +13,7 @@ public protocol DrawingObjectProperty: Codable {
     var state: DrawingObjectState { get set }
     var start: Coordinate { get set }
     var end: Coordinate { get set }
-    var color: String { get }
+    var color: DrawingObjectColor { get }
 }
 
 /// ペン
@@ -23,12 +23,12 @@ public struct DrawingPencilObjectEntity: DrawingObjectProperty, Codable {
     public var state: DrawingObjectState
     public var start: Coordinate
     public var end: Coordinate
-    public var color: String
+    public var color: DrawingObjectColor
 
     public var points: [Coordinate]
     public var lineWidth: Double
 
-    public init(id: UUID, type: DrawingObjectType, state: DrawingObjectState, start: Coordinate, end: Coordinate, color: String, points: [Coordinate], lineWidth: Double) {
+    public init(id: UUID, type: DrawingObjectType, state: DrawingObjectState, start: Coordinate, end: Coordinate, color: DrawingObjectColor, points: [Coordinate], lineWidth: Double) {
         self.id = id
         self.type = type
         self.state = state

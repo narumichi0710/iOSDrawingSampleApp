@@ -29,7 +29,7 @@ public struct PencilObject: View {
         Path { path in
             path.addLines(points)
         }
-        .stroke(object.color, lineWidth: object.lineWidth)
+        .stroke(object.color.toUIColor, lineWidth: object.lineWidth)
     }
 }
 

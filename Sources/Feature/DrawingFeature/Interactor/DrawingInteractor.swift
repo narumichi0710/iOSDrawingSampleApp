@@ -14,10 +14,19 @@ public class DrawingInteractor: ObservableObject {
     let drawingService: DrawingService
     let file: File
 
+    @Published var setting = DrawingSettingData()
     @Published var layer = DrawingLayerData()
 
     public init(drawingService: DrawingService, file: File) {
         self.drawingService = drawingService
         self.file = file
+    }
+    
+    public func changeDrawingType(_ value: DrawingObjectType) {
+        setting.type = value
+    }
+    
+    public func changeDrawingColor(_ value: DrawingObjectColor) {
+        setting.color = value
     }
 }
