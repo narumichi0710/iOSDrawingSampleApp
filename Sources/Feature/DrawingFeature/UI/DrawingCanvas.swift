@@ -59,7 +59,8 @@ public struct DrawingCanvas: View {
             layer.editingObject = DrawingArrowObjectData.create(setting, coordinate)
         case .rectangle:
             layer.editingObject = DrawingRectangleObjectData.create(setting, coordinate)
-        default: break
+        case .circle:
+            layer.editingObject = DrawingCircleObjectData.create(setting, coordinate)
         }
         layer.apply()
     }
@@ -67,9 +68,11 @@ public struct DrawingCanvas: View {
     private func onUpdatedDrawing(_ object: DrawingObjectData, _ coordinate: Coordinate) {
         if let object = object.asPencil() {
             object.onCreatePath(coordinate)
-        } else if let objects = object.asArrow() {
+        } else if object.asArrow() != nil {
             object.onEnd(coordinate)
-        } else if let objects = object.asRectangle() {
+        } else if object.asRectangle() != nil {
+            object.onEnd(coordinate)
+        } else if object.asCircle() != nil {
             object.onEnd(coordinate)
         }
         layer.apply()

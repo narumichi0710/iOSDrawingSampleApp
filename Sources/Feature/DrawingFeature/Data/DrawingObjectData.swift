@@ -133,6 +133,30 @@ public class DrawingRectangleObjectData: DrawingObjectData {
     }
 }
 
+/// 円
+public class DrawingCircleObjectData: DrawingObjectData {
+    public var lineWidth: Double
+
+    public init(entity: DrawingCircleObjectEntity) {
+        lineWidth = entity.lineWidth
+        super.init(data: entity)
+    }
+    
+    public static func create(
+        _ setting: DrawingSettingData,
+        _ coordinate: Coordinate
+    ) -> DrawingCircleObjectData {
+        .init(entity: .init(
+            id: UUID(),
+            type: .arrowLine,
+            state: .created,
+            start: coordinate,
+            end: coordinate,
+            color: setting.color,
+            lineWidth: setting.lineWidth
+        ))
+    }
+}
 
 public extension DrawingObjectData {
     func asPencil() -> DrawingPencilObjectData? {
@@ -143,6 +167,9 @@ public extension DrawingObjectData {
     }
     func asRectangle() -> DrawingRectangleObjectData? {
         self as? DrawingRectangleObjectData
+    }
+    func asCircle() -> DrawingCircleObjectData? {
+        self as? DrawingCircleObjectData
     }
 }
 

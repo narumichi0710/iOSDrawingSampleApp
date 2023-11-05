@@ -21,6 +21,8 @@ public struct DrawingObject: View {
             ArrowObject(object: object)
         } else if let object = object.asRectangle() {
             RectangleObject(object: object)
+        } else if let object = object.asCircle() {
+            CircleObject(object: object)
         }
     }
 }
@@ -89,6 +91,28 @@ public struct RectangleObject: View {
                 height: abs(object.start.y - object.end.y)
             )
             path.addRect(rect)
+        }
+        .stroke(object.color.toUIColor, lineWidth: object.lineWidth)
+    }
+}
+
+/// 円
+public struct CircleObject: View {
+    @ObservedObject var object: DrawingCircleObjectData
+
+    public var body: some View {
+        Path { path in
+            // 始点と終点の中間点を計算（円の中心点）
+            let centerX = (object.start.x + object.end.x) / 2
+            let centerY = (object.start.y + object.end.y) / 2
+            let center = CGPoint(x: centerX, y: centerY)
+            
+            // 始点と終点の距離を計算（円の直径）
+            let diameter = sqrt(pow(object.end.x - object.start.x, 2) + pow(object.end.y - object.start.y, 2))
+            let radius = diameter / 2
+            
+            // 中心点と半径を使って円を追加
+            path.addEllipse(in: CGRect(x: center.x - radius, y: center.y - radius, width: diameter, height: diameter))
         }
         .stroke(object.color.toUIColor, lineWidth: object.lineWidth)
     }
