@@ -19,6 +19,8 @@ public struct DrawingObject: View {
             PencilObject(object: object)
         } else if let object = object.asArrow() {
             ArrowObject(object: object)
+        } else if let object = object.asRectangle() {
+            RectangleObject(object: object)
         }
     }
 }
@@ -69,6 +71,24 @@ public struct ArrowObject: View {
             path.move(to: wing1)
             path.addLine(to: object.start.cgPoint)
             path.addLine(to: wing2)
+        }
+        .stroke(object.color.toUIColor, lineWidth: object.lineWidth)
+    }
+}
+
+/// 矩形
+public struct RectangleObject: View {
+    @ObservedObject var object: DrawingRectangleObjectData
+
+    public var body: some View {
+        Path { path in
+            let rect = CGRect(
+                x: min(object.start.x, object.end.x),
+                y: min(object.start.y, object.end.y),
+                width: abs(object.start.x - object.end.x),
+                height: abs(object.start.y - object.end.y)
+            )
+            path.addRect(rect)
         }
         .stroke(object.color.toUIColor, lineWidth: object.lineWidth)
     }

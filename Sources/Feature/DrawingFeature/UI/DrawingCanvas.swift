@@ -57,6 +57,8 @@ public struct DrawingCanvas: View {
             layer.editingObject = DrawingPencilObjectData.create(setting, coordinate)
         case .arrowLine:
             layer.editingObject = DrawingArrowObjectData.create(setting, coordinate)
+        case .rectangle:
+            layer.editingObject = DrawingRectangleObjectData.create(setting, coordinate)
         default: break
         }
         layer.apply()
@@ -66,6 +68,8 @@ public struct DrawingCanvas: View {
         if let object = object.asPencil() {
             object.onCreatePath(coordinate)
         } else if let objects = object.asArrow() {
+            object.onEnd(coordinate)
+        } else if let objects = object.asRectangle() {
             object.onEnd(coordinate)
         }
         layer.apply()

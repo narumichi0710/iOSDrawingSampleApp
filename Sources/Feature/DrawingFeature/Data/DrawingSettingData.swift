@@ -11,7 +11,7 @@ import Repository
 public struct DrawingSettingData {
     var type = DrawingObjectType.pencil
     var color = DrawingObjectColor.blue
-    var lineWidth = 3.0
+    var lineWidth = 5.0
     
     public init() {}
 }
