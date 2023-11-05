@@ -13,22 +13,34 @@ import ViewExtension
 public class DrawingObjectData: Equatable, ObservableObject {
     public var data: DrawingObjectProperty
     public var id: UUID { data.id }
-    public var color: DrawingObjectColor { data.color }
     public var type: DrawingObjectType { data.type }
     public var state: DrawingObjectState { data.state }
+    public var start: Coordinate { data.start }
+    public var end: Coordinate { data.end }
+    public var color: DrawingObjectColor { data.color }
     
     @Published private var modified: Date = .now
 
-    func updateState(_ value: DrawingObjectState) {
-        data.state = value
-    }
-    
-    func apply() {
-        modified = .now
-    }
-
     public init(data: DrawingObjectProperty) {
         self.data = data
+    }
+    
+    public func onStart(_ value: Coordinate) {
+        data.start = value
+        apply()
+    }
+    
+    public func onEnd(_ value: Coordinate) {
+        data.end = value
+        apply()
+    }
+    
+    public func apply() {
+        modified = .now
+    }
+    
+    public func updateState(_ value: DrawingObjectState) {
+        data.state = value
     }
 
     public static func == (lhs: DrawingObjectData, rhs: DrawingObjectData) -> Bool {
@@ -54,15 +66,43 @@ public class DrawingPencilObjectData: DrawingObjectData {
         super.init(data: entity)
     }
 
-    public static func create(_ setting: DrawingSettingData) -> DrawingPencilObjectData {
+    public static func create(
+        _ setting: DrawingSettingData,
+        _ coordinate: Coordinate
+    ) -> DrawingPencilObjectData {
         .init(entity: .init(
             id: UUID(),
             type: .pencil,
             state: .created,
-            start: .init(),
-            end: .init(),
+            start: coordinate,
+            end: coordinate,
             color: setting.color,
             points: .init(),
+            lineWidth: setting.lineWidth
+        ))
+    }
+}
+
+/// 矢印
+public class DrawingArrowObjectData: DrawingObjectData {
+    public var lineWidth: Double
+
+    public init(entity: DrawingArrowObjectEntity) {
+        lineWidth = entity.lineWidth
+        super.init(data: entity)
+    }
+    
+    public static func create(
+        _ setting: DrawingSettingData,
+        _ coordinate: Coordinate
+    ) -> DrawingArrowObjectData {
+        .init(entity: .init(
+            id: UUID(),
+            type: .arrowLine,
+            state: .created,
+            start: coordinate,
+            end: coordinate,
+            color: setting.color,
             lineWidth: setting.lineWidth
         ))
     }
@@ -72,6 +112,9 @@ public class DrawingPencilObjectData: DrawingObjectData {
 public extension DrawingObjectData {
     func asPencil() -> DrawingPencilObjectData? {
         self as? DrawingPencilObjectData
+    }
+    func asArrow() -> DrawingArrowObjectData? {
+        self as? DrawingArrowObjectData
     }
 }
 

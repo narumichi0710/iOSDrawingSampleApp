@@ -39,3 +39,24 @@ public struct DrawingPencilObjectEntity: DrawingObjectProperty, Codable {
         self.lineWidth = lineWidth
     }
 }
+
+/// 矢印
+public struct DrawingArrowObjectEntity: DrawingObjectProperty, Codable {
+    public var id: UUID
+    public var type: DrawingObjectType
+    public var state: DrawingObjectState
+    public var start: Coordinate
+    public var end: Coordinate
+    public var color: DrawingObjectColor
+    public var lineWidth: Double
+
+    public init(id: UUID, type: DrawingObjectType, state: DrawingObjectState, start: Coordinate, end: Coordinate, color: DrawingObjectColor, lineWidth: Double) {
+        self.id = id
+        self.type = type
+        self.state = state
+        self.start = start
+        self.end = end
+        self.color = color
+        self.lineWidth = lineWidth
+    }
+}

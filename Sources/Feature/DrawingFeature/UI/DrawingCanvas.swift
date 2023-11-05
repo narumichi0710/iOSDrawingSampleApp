@@ -41,33 +41,38 @@ public struct DrawingCanvas: View {
                 DragGesture(minimumDistance: 0.1)
                     .onChanged {
                         guard let object = layer.editingObject else {
-                            onCreatedDrawing()
+                            onCreatedDrawing(.init(x: $0.location.x, y: $0.location.y))
                             return
                         }
                         onUpdatedDrawing(object, .init(x: $0.location.x, y: $0.location.y))
-                    }.onEnded { _ in
-                        onEndedDrawing()
+                    }.onEnded {
+                        onEndedDrawing(.init(x: $0.location.x, y: $0.location.y))
                     }
             )
     }
 
-    private func onCreatedDrawing() {
+    private func onCreatedDrawing(_ coordinate: Coordinate) {
         switch setting.type {
         case .pencil:
-            layer.editingObject = DrawingPencilObjectData.create(setting)
+            layer.editingObject = DrawingPencilObjectData.create(setting, coordinate)
+        case .arrowLine:
+            layer.editingObject = DrawingArrowObjectData.create(setting, coordinate)
         default: break
         }
         layer.apply()
     }
 
-    private func onUpdatedDrawing(_ object: DrawingObjectData, _ point: Coordinate) {
+    private func onUpdatedDrawing(_ object: DrawingObjectData, _ coordinate: Coordinate) {
         if let object = object.asPencil() {
-            object.onCreatePath(point)
+            object.onCreatePath(coordinate)
+        } else if let objects = object.asArrow() {
+            object.onEnd(coordinate)
         }
         layer.apply()
     }
 
-    private func onEndedDrawing() {
+    private func onEndedDrawing(_ coordinate: Coordinate) {
+        layer.editingObject?.onEnd(coordinate)
         layer.appendEditingObject()
         layer.apply()
     }
