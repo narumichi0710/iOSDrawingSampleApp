@@ -73,18 +73,11 @@ public struct DrawingCanvas: View {
                             textColor: setting.color,
                             backgroundColor: DrawingTextObjectData.getBackgroudColor(setting.color)
                         ) {
-                            withAnimation {
-                                isShowExternalOverlay = false
-                            }
-                            setting.text = $0
-                            
                             if !$0.isEmpty {
-                                let object = DrawingTextObjectData.create(setting, setting.tmpCoordinate)
-                                layer.append(object)
-                                withAnimation {
-                                    layer.apply()
-                                }
+                                setting.text = $0
+                                layer.append(DrawingTextObjectData.create(setting, setting.tmpCoordinate))
                             }
+                            isShowExternalOverlay = false
                         }
                         .setBackgroundClear()
                     }
