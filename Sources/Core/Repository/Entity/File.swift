@@ -20,7 +20,7 @@ public struct File {
 }
 
 public var mockFiles = [
-    File(name: "file_1"),
+    File(name: "drawing resized image"),
     File(name: "file_2"),
     File(name: "file_3"),
     File(name: "file_4"),

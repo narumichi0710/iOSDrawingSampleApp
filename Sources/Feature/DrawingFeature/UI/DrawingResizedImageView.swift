@@ -1,6 +1,6 @@
 //
-//  DrawingRootView.swift
-//  
+//  DrawingResizedImageView.swift
+//
 //
 //  Created by Narumichi Kubo on 2023/09/16.
 //
@@ -10,9 +10,16 @@ import Service
 import ViewExtension
 import Repository
 
-public struct DrawingRootView: View {
+public struct DrawingResizedImageView: View {
     @Environment(\.dismiss) var dismiss
     @StateObject private var interactor: DrawingInteractor
+    
+    @State private var isShowCoordinate = false
+    @State private var currentCoordinate = ""
+    
+    @State private var originalImage: UIImage?
+    private var originalImageMaxX: CGFloat? { originalImage?.size.width }
+    private var originalImageMaxY: CGFloat? { originalImage?.size.height }
     
     private var selectedType: DrawingObjectType { interactor.setting.type }
     private var selectedColor: DrawingObjectColor { interactor.setting.color }
@@ -26,8 +33,10 @@ public struct DrawingRootView: View {
     
     public var body: some View {
         VStack {
+            header()
             Spacer(minLength: 0)
             content()
+                .padding(.horizontal, isShowCoordinate ? 32 : 0)
             Spacer(minLength: 0)
             footer()
         }
@@ -35,19 +44,78 @@ public struct DrawingRootView: View {
             title: interactor.file.name,
             dismiss: { dismiss() },
             trailingButton: Button(
-                action: { interactor.layer.reset() },
+                action: {
+                    interactor.layer.reset()
+                    currentCoordinate = ""
+                },
                 label: { Text("Reset") }
             )
         )
     }
     
+    private func header() -> some View {
+        VStack {
+            if let originalImageMaxX, let originalImageMaxY {
+                HStack {
+                    Text("Original Image Size: \(Int(originalImageMaxX)) x \(Int(originalImageMaxY))")
+                    Spacer()
+                }
+                HStack {
+                    Text("Canvas Size: 300 x 300")
+                    Spacer()
+                }
+                HStack {
+                    Text("Current Canvas Coordinate")
+                    Spacer()
+                    Text(currentCoordinate)
+                }
+                VStack {
+                    HStack {
+                        Text("Transform to Image Coordinate")
+                        Spacer()
+                        
+                        Button {
+                            
+                        } label: {
+                            Text("Transform")
+                        }
+                    }
+                }
+                Toggle(isOn: $isShowCoordinate) {
+                    Text("Visible Canvas Coordinate Grid")
+                }
+            }
+        }
+        .padding()
+    }
+    
     private func content() -> some View {
-        AsyncImage(
-            url: URL(string: interactor.file.imageUrl),
-            content: { $0 },
-            placeholder: { ProgressView() }
-        )
-        .overlay { DrawingCanvas(setting: $interactor.setting, layer: interactor.layer) }
+        ZStack {
+            GeometryReader { geometryProxy in
+                AsyncImage(
+                    url: URL(string: interactor.file.imageUrl),
+                    content: { image in
+                        image
+                            .resizable()
+                            .scaledToFit()
+                            .onAppear {
+                                originalImage = image.asUIImage()
+                            }
+                    },
+                    placeholder: { ProgressView() }
+                )
+                .overlay {
+                    DrawingCanvas(
+                        geometryProxy: geometryProxy,
+                        setting: $interactor.setting,
+                        layer: interactor.layer,
+                        isShowCoordinate: $isShowCoordinate,
+                        currentCoordinate: $currentCoordinate
+                    )
+                }
+            }
+        }
+        .frame(width: 300, height: 300)
     }
 
     private func footer() -> some View {
@@ -99,5 +167,18 @@ public struct DrawingRootView: View {
             }
         }
         .padding()
+    }
+}
+
+extension Image {
+    func asUIImage() -> UIImage? {
+        let controller = UIHostingController(rootView: self)
+        controller.view.layoutIfNeeded()
+        let size = controller.sizeThatFits(in: CGSize(width: UIScreen.main.bounds.width, height: CGFloat.greatestFiniteMagnitude))
+        let view = controller.view
+        let renderer = UIGraphicsImageRenderer(size: size)
+        return renderer.image { _ in
+            view?.drawHierarchy(in: controller.view.bounds, afterScreenUpdates: true)
+        }
     }
 }

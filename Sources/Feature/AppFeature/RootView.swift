@@ -21,12 +21,10 @@ public struct RootView: View {
     public var body: some View {
         NavigationLayout {
             List {
-                ForEach(mockFiles, id: \.id) {
-                    NavigationLink(
-                        $0.name,
-                        destination: DrawingRootView(drawingService: factory.drawingService, file: $0)
-                    )
-                }
+                NavigationLink(
+                    mockFiles[0].name,
+                    destination: DrawingResizedImageView(drawingService: factory.drawingService, file: mockFiles[0])
+                )
             }
             .navigationTitle("drawing sample app")
             .navigationBarTitleDisplayMode(.inline)
