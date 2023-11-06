@@ -16,6 +16,8 @@ public enum DrawingObjectType: String, Codable, CaseIterable {
     case rectangle
     /// 円
     case circle
+    /// テキスト
+    case text
 
     public var iconName: String {
         switch self {
@@ -27,6 +29,8 @@ public enum DrawingObjectType: String, Codable, CaseIterable {
             return "rectangle"
         case .circle:
             return "circle"
+        case .text:
+            return "textformat"
         }
     }
 }

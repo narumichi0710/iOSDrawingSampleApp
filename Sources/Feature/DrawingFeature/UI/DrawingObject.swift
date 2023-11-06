@@ -23,6 +23,8 @@ public struct DrawingObject: View {
             RectangleObject(object: object)
         } else if let object = object.asCircle() {
             CircleObject(object: object)
+        } else if let object = object.asText() {
+            TextObject(object: object)
         }
     }
 }
@@ -115,5 +117,22 @@ public struct CircleObject: View {
             path.addEllipse(in: CGRect(x: center.x - radius, y: center.y - radius, width: diameter, height: diameter))
         }
         .stroke(object.color.toUIColor, lineWidth: object.lineWidth)
+    }
+}
+
+/// テキスト
+public struct TextObject: View {
+    @ObservedObject var object: DrawingTextObjectData
+
+    public var body: some View {
+        Text(object.text)
+            .font(.system(size: 20))
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(object.backgroundColor.toUIColor)
+            )
+            .foregroundColor(object.color.toUIColor)
+            .position(x: object.start.x, y: object.end.y)
     }
 }

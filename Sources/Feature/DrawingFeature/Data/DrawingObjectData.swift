@@ -171,7 +171,57 @@ public extension DrawingObjectData {
     func asCircle() -> DrawingCircleObjectData? {
         self as? DrawingCircleObjectData
     }
+    func asText() -> DrawingTextObjectData? {
+        self as? DrawingTextObjectData
+    }
 }
+
+/// テキスト
+public class DrawingTextObjectData: DrawingObjectData {
+    public var backgroundColor: DrawingObjectColor
+    public var text: String
+
+    public init(entity: DrawingTextObjectEntity) {
+        backgroundColor = entity.backgroundColor
+        text = entity.text
+        super.init(data: entity)
+    }
+    
+    public static func create(
+        _ setting: DrawingSettingData,
+        _ coordinate: Coordinate
+    ) -> DrawingTextObjectData {
+        .init(entity: .init(
+            id: UUID(),
+            type: .arrowLine,
+            state: .created,
+            start: coordinate,
+            end: coordinate,
+            color: setting.color,
+            backgroundColor: getBackgroudColor(setting.color),
+            text: setting.text
+        ))
+    }
+    
+    public static func getBackgroudColor(
+        _ textColor: DrawingObjectColor
+    ) -> DrawingObjectColor {
+        switch textColor {
+        case .blue:
+            return .green
+        case .green:
+            return .magenta
+        case .magenta:
+            return .red
+        case .red:
+            return .yellow
+        case .yellow:
+            return .green
+        }
+    }
+}
+
+
 
 public extension DrawingObjectColor {
     var toUIColor: Color { .init(hex: rawValue) }

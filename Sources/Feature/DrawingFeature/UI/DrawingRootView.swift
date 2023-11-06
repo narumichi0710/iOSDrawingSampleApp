@@ -47,7 +47,7 @@ public struct DrawingRootView: View {
             content: { $0 },
             placeholder: { ProgressView() }
         )
-        .overlay { DrawingCanvas(setting: interactor.setting, layer: interactor.layer) }
+        .overlay { DrawingCanvas(setting: $interactor.setting, layer: interactor.layer) }
     }
 
     private func footer() -> some View {
@@ -74,13 +74,15 @@ public struct DrawingRootView: View {
             }
     
             // 描画種別選択
-            HStack(spacing: 16.0) {
+            HStack(spacing: 8.0) {
                 ForEach(DrawingObjectType.allCases, id: \.self) { type in
                     Button {
                         interactor.changeDrawingType(type)
                     } label: {
                         Image(systemName: type.iconName)
-                            .font(.title)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 20, height: 20)
                             .foregroundColor(selectedType == type ? .white : .gray)
                             .padding()
                             .background(selectedType == type ? Color.blue : Color.clear)

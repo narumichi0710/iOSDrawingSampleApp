@@ -9,48 +9,104 @@ import SwiftUI
 import Service
 import Repository
 import ViewExtension
+import UIKit
 
 public struct DrawingCanvas: View {
-    private let setting: DrawingSettingData
+    @Binding private var setting: DrawingSettingData
     @ObservedObject private var layer: DrawingLayerData
+    @State private var isShowExternalOverlay = false
 
-    public init(setting: DrawingSettingData, layer: DrawingLayerData) {
-        self.setting = setting
+    public init(setting: Binding<DrawingSettingData>, layer: DrawingLayerData) {
+        _setting = setting
         self.layer = layer
     }
     
     public var body: some View {
         ZStack {
-            // 編集済のオブジェクト
-            ForEach(layer.objects, id: \.id) {
-                DrawingObject(object: $0)
+            GeometryReader { geo in
+                // 編集済のオブジェクト
+                ForEach(layer.objects, id: \.id) {
+                    DrawingObject(object: $0)
+                }
+                // 編集中のオブジェクト
+                if let objects = layer.editingObject {
+                    DrawingObject(object: objects)
+                }
+                // 描画用オーバーレイ
+                gestureOverlay(geo)
             }
-            // 編集中のオブジェクト
-            if let objects = layer.editingObject {
-                DrawingObject(object: objects)
-            }
-            // 描画用オーバーレイ
-            gestureOverlay()
+        }
+        // その他のオーバーレイ
+        if isShowExternalOverlay {
+            externalOverlay()
         }
     }
 
-    private func gestureOverlay() -> some View {
+    private func gestureOverlay(_ geo: GeometryProxy) -> some View {
         Color.clear
             .contentShape(Rectangle())
             .gesture(
-                DragGesture(minimumDistance: 0.1)
+                DragGesture(minimumDistance: 0.0)
                     .onChanged {
-                        guard let object = layer.editingObject else {
-                            onCreatedDrawing(.init(x: $0.location.x, y: $0.location.y))
-                            return
+                        if $0.startLocation == $0.location {
+                            onTapedCanvas(.init(x: $0.location.x, y: $0.location.y))
+                        } else {
+                            guard let object = layer.editingObject else {
+                                onCreatedDrawing(.init(x: $0.location.x, y: $0.location.y))
+                                return
+                            }
+                            onUpdatedDrawing(object, .init(x: $0.location.x, y: $0.location.y))
                         }
-                        onUpdatedDrawing(object, .init(x: $0.location.x, y: $0.location.y))
                     }.onEnded {
                         onEndedDrawing(.init(x: $0.location.x, y: $0.location.y))
                     }
             )
     }
+    
+    private func externalOverlay() -> some View {
+        Group {
+            switch setting.type {
+            case .text:
+                Color.clear
+                    .fullScreenCover(isPresented: $isShowExternalOverlay) {
+                        TextInputView(
+                            textColor: setting.color,
+                            backgroundColor: DrawingTextObjectData.getBackgroudColor(setting.color)
+                        ) {
+                            withAnimation {
+                                isShowExternalOverlay = false
+                            }
+                            setting.text = $0
+                            
+                            if !$0.isEmpty {
+                                let object = DrawingTextObjectData.create(setting, setting.tmpCoordinate)
+                                layer.append(object)
+                                withAnimation {
+                                    layer.apply()
+                                }
+                            }
+                        }
+                        .setBackgroundClear()
+                    }
 
+            default: EmptyView()
+            }
+        }
+        .ignoresSafeArea(.all)
+    }
+    
+    
+    private func onTapedCanvas(_ coordinate: Coordinate) {
+        switch setting.type {
+        case .text:
+            withAnimation {
+                isShowExternalOverlay = true
+            }
+            setting.tmpCoordinate = coordinate
+        default: break
+        }
+    }
+    
     private func onCreatedDrawing(_ coordinate: Coordinate) {
         switch setting.type {
         case .pencil:
@@ -61,6 +117,8 @@ public struct DrawingCanvas: View {
             layer.editingObject = DrawingRectangleObjectData.create(setting, coordinate)
         case .circle:
             layer.editingObject = DrawingCircleObjectData.create(setting, coordinate)
+        default:
+            break
         }
         layer.apply()
     }

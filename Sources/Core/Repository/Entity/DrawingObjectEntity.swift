@@ -102,3 +102,26 @@ public struct DrawingCircleObjectEntity: DrawingObjectProperty, Codable {
         self.lineWidth = lineWidth
     }
 }
+
+/// テキスト
+public struct DrawingTextObjectEntity: DrawingObjectProperty, Codable {
+    public var id: UUID
+    public var type: DrawingObjectType
+    public var state: DrawingObjectState
+    public var start: Coordinate
+    public var end: Coordinate
+    public var color: DrawingObjectColor
+    public var backgroundColor: DrawingObjectColor
+    public var text: String
+
+    public init(id: UUID, type: DrawingObjectType, state: DrawingObjectState, start: Coordinate, end: Coordinate, color: DrawingObjectColor, backgroundColor: DrawingObjectColor, text: String) {
+        self.id = id
+        self.type = type
+        self.state = state
+        self.start = start
+        self.end = end
+        self.color = color
+        self.backgroundColor = backgroundColor
+        self.text = text
+    }
+}
