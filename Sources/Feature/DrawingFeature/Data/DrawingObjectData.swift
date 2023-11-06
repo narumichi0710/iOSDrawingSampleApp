@@ -30,6 +30,12 @@ public class DrawingObjectData: Equatable, ObservableObject {
         apply()
     }
     
+    public func onUpdate(_ start: Coordinate, _ end: Coordinate) {
+        data.start = start
+        data.end = end
+        apply()
+    }
+    
     public func onEnd(_ value: Coordinate) {
         data.end = value
         apply()
@@ -60,6 +66,14 @@ public class DrawingPencilObjectData: DrawingObjectData {
 
     public func onEndDrawing() {}
 
+    public func onUpdate(
+        _ points: [Coordinate],
+        _ start: Coordinate,
+        _ end: Coordinate
+    ) {
+        self.points = points
+        super.onUpdate(start, end)
+    }
     public init(entity: DrawingPencilObjectEntity) {
         points = entity.points
         lineWidth = entity.lineWidth

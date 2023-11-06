@@ -105,7 +105,7 @@ public struct DrawingResizedImageView: View {
                     placeholder: { ProgressView() }
                 )
                 .overlay {
-                    DrawingCanvas(
+                    DrawingResizedImageCanvas(
                         geometryProxy: geometryProxy,
                         setting: $interactor.setting,
                         layer: interactor.layer,

@@ -1,17 +1,16 @@
 //
-//  DrawingCanvas.swift
+//  DrawingResisedImageCanvas.swift
+//  
 //
-//
-//  Created by Narumichi Kubo on 2023/09/17.
+//  Created by Narumichi Kubo on 2023/11/06.
 //
 
 import SwiftUI
 import Service
-import Repository
 import ViewExtension
-import UIKit
+import Repository
 
-public struct DrawingCanvas: View {
+public struct DrawingResizedImageCanvas: View {
     @Binding private var isShowCoordinate: Bool
     @Binding private var currentCoordinate: String
     

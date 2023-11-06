@@ -25,6 +25,10 @@ public struct RootView: View {
                     mockFiles[0].name,
                     destination: DrawingResizedImageView(drawingService: factory.drawingService, file: mockFiles[0])
                 )
+                NavigationLink(
+                    mockFiles[1].name,
+                    destination: DrawingOriginalImageView(drawingService: factory.drawingService, file: mockFiles[1])
+                )
             }
             .navigationTitle("drawing sample app")
             .navigationBarTitleDisplayMode(.inline)
