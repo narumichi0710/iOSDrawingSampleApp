@@ -13,10 +13,10 @@ import Repository
 public class DrawingInteractor: ObservableObject {
     let drawingService: DrawingService
     let file: File
-
+    
     @Published var setting = DrawingSettingData()
     @Published var layer = DrawingLayerData()
-
+    
     public init(drawingService: DrawingService, file: File) {
         self.drawingService = drawingService
         self.file = file
@@ -30,34 +30,80 @@ public class DrawingInteractor: ObservableObject {
         setting.color = value
     }
     
-    // 画像のスケールとスクロールオフセットを考慮に入れて位置を変換
-    public func transformCoordinates() {
-        layer.objects.forEach { object in
-            let imageSize = setting.imageSize
-            let canvasSize = setting.canvasSize
-            let scale = setting.scale
-            let offset = setting.offset
+    public func convertCoordinates(_ newCanvasSize: CGSize) {
+        let oldCanvasSize = setting.canvasSize
+        setting.canvasSize = newCanvasSize
+    
+        let normalizedLayer = convertToImageCoordinates(layer, setting.imageSize, oldCanvasSize)
+        let adjustedLayer = convertToCanvasCoordinates(normalizedLayer, setting.imageSize, newCanvasSize)
+        
+        layer = adjustedLayer
+    }
+    
+    /// キャンバス座標を画像座標に変換
+    public func convertToImageCoordinates(
+        _ layer: DrawingLayerData,
+        _ imageSize: CGSize,
+        _ canvasSize: CGSize
+    ) -> DrawingLayerData {
+        let applyLayer = layer
+        // キャンバスと画像のサイズ比
+        let xRatio = imageSize.width / canvasSize.width
+        let yRatio = imageSize.height / canvasSize.height
 
-            // キャンバス上のオブジェクトの位置を、画像の座標系に変換する関数
-            func adjustCoordinate(_ coordinate: Coordinate) -> Coordinate {
-                // オフセットとスケールを考慮して座標を調整
-                let adjustedX = (coordinate.x - offset.x) / scale
-                let adjustedY = (coordinate.y - offset.y) / scale
-                return Coordinate(x: adjustedX, y: adjustedY)
-            }
+        applyLayer.objects.forEach { object in
+            // 変換した開始・終了座標
+            let adjustedStart = scaleCoordinateByRatio(object.start, xRatio, yRatio)
+            let adjustedEnd = scaleCoordinateByRatio(object.end, xRatio, yRatio)
 
-            // オブジェクトの開始位置と終了位置を調整
-            let adjustedStart = adjustCoordinate(object.start)
-            let adjustedEnd = adjustCoordinate(object.end)
-
+            // ペンシルオブジェクトの場合、点の集合も変換
             if let pencilObject = object.asPencil() {
-                // ペンの場合のみ、線の座標も調整
-                let adjustedPoints = pencilObject.points.map(adjustCoordinate)
+                let adjustedPoints = pencilObject.points.map { scaleCoordinateByRatio($0, xRatio, yRatio) }
                 pencilObject.onUpdate(adjustedPoints, adjustedStart, adjustedEnd)
             } else {
                 object.onUpdate(adjustedStart, adjustedEnd)
             }
         }
-        layer.apply()
+        return applyLayer
+    }
+
+    /// 画像座標をキャンバス座標に変換
+    public func convertToCanvasCoordinates(
+        _ layer: DrawingLayerData,
+        _ imageSize: CGSize,
+        _ canvasSize: CGSize
+    ) -> DrawingLayerData {
+        let applyLayer = layer
+        // キャンバスと画像のサイズ比を計算
+        let xRatio = canvasSize.width / imageSize.width
+        let yRatio = canvasSize.height / imageSize.height
+
+        applyLayer.objects.forEach { object in
+            // 変換した開始・終了座標
+            let adjustedStart = scaleCoordinateByRatio(object.start, xRatio, yRatio)
+            let adjustedEnd = scaleCoordinateByRatio(object.end, xRatio, yRatio)
+
+            // ペンシルオブジェクトの場合、点の集合も変換
+            if let pencilObject = object.asPencil() {
+                let adjustedPoints = pencilObject.points.map { scaleCoordinateByRatio($0, xRatio, yRatio) }
+                pencilObject.onUpdate(adjustedPoints, adjustedStart, adjustedEnd)
+            } else {
+                object.onUpdate(adjustedStart, adjustedEnd)
+            }
+        }
+        
+        return applyLayer
+    }
+    
+    /// 座標をスケール比に応じて調整
+    private func scaleCoordinateByRatio(
+        _ coordinate: Coordinate,
+        _ xRatio: CGFloat,
+        _ yRatio: CGFloat
+    ) -> Coordinate {
+        Coordinate(
+            x: coordinate.x * xRatio,
+            y: coordinate.y * yRatio
+        )
     }
 }

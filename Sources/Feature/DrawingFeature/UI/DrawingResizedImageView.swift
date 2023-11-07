@@ -14,12 +14,10 @@ public struct DrawingResizedImageView: View {
     @Environment(\.dismiss) var dismiss
     @StateObject private var interactor: DrawingInteractor
     
+    @State private var isPresentedTransformedView = false
+
     @State private var isShowCoordinate = false
     @State private var currentCoordinate = ""
-    
-    @State private var originalImage: UIImage?
-    private var originalImageMaxX: CGFloat? { originalImage?.size.width }
-    private var originalImageMaxY: CGFloat? { originalImage?.size.height }
     
     private var selectedType: DrawingObjectType { interactor.setting.type }
     private var selectedColor: DrawingObjectColor { interactor.setting.color }
@@ -28,17 +26,32 @@ public struct DrawingResizedImageView: View {
         drawingService: DrawingService,
         file: File
     ) {
-        _interactor = .init(wrappedValue: .init(drawingService: drawingService, file: file))
+        let interactor = DrawingInteractor(drawingService: drawingService, file: file)
+        interactor.setting.canvasSize = .init(width: 300.0, height: 300.0)
+        _interactor = .init(wrappedValue: interactor)
+    }
+    
+    public init (
+        interactor: DrawingInteractor
+    ) {
+        _interactor = .init(wrappedValue: interactor)
     }
     
     public var body: some View {
-        VStack {
-            header()
-            Spacer(minLength: 0)
-            content()
-                .padding(.horizontal, isShowCoordinate ? 32 : 0)
-            Spacer(minLength: 0)
-            footer()
+        ZStack {
+            VStack {
+                header()
+                Spacer(minLength: 0)
+                content()
+                Spacer(minLength: 0)
+                footer()
+            }
+            
+            NavigationLink(
+                "",
+                isActive: $isPresentedTransformedView,
+                destination: { DrawingResizedImageView(interactor: interactor) }
+            )
         }
         .navigationToolbar(
             title: interactor.file.name,
@@ -55,35 +68,43 @@ public struct DrawingResizedImageView: View {
     
     private func header() -> some View {
         VStack {
-            if let originalImageMaxX, let originalImageMaxY {
-                HStack {
-                    Text("Original Image Size: \(Int(originalImageMaxX)) x \(Int(originalImageMaxY))")
-                    Spacer()
-                }
-                HStack {
-                    Text("Canvas Size: 300 x 300")
-                    Spacer()
-                }
-                HStack {
-                    Text("Current Canvas Coordinate")
-                    Spacer()
-                    Text(currentCoordinate)
-                }
-                VStack {
-                    HStack {
-                        Text("Transform to Image Coordinate")
-                        Spacer()
-                        
-                        Button {
-                            
-                        } label: {
-                            Text("Transform")
-                        }
+            HStack {
+                Text("Image: \(Int(interactor.setting.imageSize.width))x\(Int(interactor.setting.imageSize.height))")
+                Text("Canvas:")
+                Menu("\(Int(interactor.setting.canvasSize.width)) x \(Int(interactor.setting.canvasSize.height))") {
+                    Button("100x100") {
+                        interactor.convertCoordinates(.init(width: 100, height: 100))
+                    }
+                    Button("225x225") {
+                        interactor.convertCoordinates(.init(width: 225, height: 225))
+                    }
+                    Button("300x300") {
+                        interactor.convertCoordinates(.init(width: 300, height: 300))
                     }
                 }
-                Toggle(isOn: $isShowCoordinate) {
-                    Text("Visible Canvas Coordinate Grid")
+                Spacer()
+                
+            }
+            
+            HStack {
+                Text("Current Canvas Coordinate")
+                Spacer()
+                Text(currentCoordinate)
+            }
+            VStack {
+                HStack {
+                    Text("Transform to Image Coordinate")
+                    Spacer()
+                    
+                    Button {
+                        isPresentedTransformedView = true
+                    } label: {
+                        Text("Transform")
+                    }
                 }
+            }
+            Toggle(isOn: $isShowCoordinate) {
+                Text("Visible Canvas Coordinate Grid")
             }
         }
         .padding()
@@ -99,23 +120,27 @@ public struct DrawingResizedImageView: View {
                             .resizable()
                             .scaledToFit()
                             .onAppear {
-                                originalImage = image.asUIImage()
+                                if let image = image.asUIImage() {
+                                    interactor.setting.imageSize = image.size
+                                }
                             }
                     },
                     placeholder: { ProgressView() }
                 )
                 .overlay {
-                    DrawingResizedImageCanvas(
-                        geometryProxy: geometryProxy,
-                        setting: $interactor.setting,
-                        layer: interactor.layer,
-                        isShowCoordinate: $isShowCoordinate,
-                        currentCoordinate: $currentCoordinate
-                    )
+                    if interactor.setting.imageSize != .zero {
+                        DrawingResizedImageCanvas(
+                            geometryProxy: geometryProxy,
+                            setting: $interactor.setting,
+                            layer: interactor.layer,
+                            isShowCoordinate: $isShowCoordinate,
+                            currentCoordinate: $currentCoordinate
+                        )
+                    }
                 }
             }
         }
-        .frame(width: 300, height: 300)
+        .frame(width: interactor.setting.canvasSize.width, height:  interactor.setting.canvasSize.height)
     }
 
     private func footer() -> some View {
