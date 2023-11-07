@@ -1,5 +1,5 @@
 //
-//  DrawingResizedImageView.swift
+//  DrawingNDCView.swift
 //
 //
 //  Created by Narumichi Kubo on 2023/09/16.
@@ -10,11 +10,11 @@ import Service
 import ViewExtension
 import Repository
 
-public struct DrawingResizedImageView: View {
+public struct DrawingNDCView: View {
     @Environment(\.dismiss) var dismiss
     @StateObject private var interactor: DrawingInteractor
     
-    @State private var isPresentedTransformedView = false
+    @State private var isPresentedJsonView = false
 
     @State private var isShowCoordinate = false
     @State private var currentCoordinate = ""
@@ -49,8 +49,14 @@ public struct DrawingResizedImageView: View {
             
             NavigationLink(
                 "",
-                isActive: $isPresentedTransformedView,
-                destination: { DrawingResizedImageView(interactor: interactor) }
+                isActive: $isPresentedJsonView,
+                destination: {
+                    JsonView(
+                        layer: interactor.convertCanvasToNDC(
+                            interactor.layer, interactor.setting.canvasSize
+                        )
+                    )
+                }
             )
         }
         .navigationToolbar(
@@ -73,13 +79,13 @@ public struct DrawingResizedImageView: View {
                 Text("Canvas:")
                 Menu("\(Int(interactor.setting.canvasSize.width)) x \(Int(interactor.setting.canvasSize.height))") {
                     Button("100x100") {
-                        interactor.convertCoordinates(.init(width: 100, height: 100))
+                        interactor.convertCoordinates_2(.init(width: 100, height: 100))
                     }
                     Button("225x225") {
-                        interactor.convertCoordinates(.init(width: 225, height: 225))
+                        interactor.convertCoordinates_2(.init(width: 225, height: 225))
                     }
                     Button("300x300") {
-                        interactor.convertCoordinates(.init(width: 300, height: 300))
+                        interactor.convertCoordinates_2(.init(width: 300, height: 300))
                     }
                 }
                 Spacer()
@@ -91,18 +97,16 @@ public struct DrawingResizedImageView: View {
                 Spacer()
                 Text(currentCoordinate)
             }
-            VStack {
-                HStack {
-                    Text("Transform to Image Coordinate")
-                    Spacer()
-                    
-                    Button {
-                        isPresentedTransformedView = true
-                    } label: {
-                        Text("Transform")
-                    }
+            HStack {
+                Text("Check Json Data")
+                Button {
+                    isPresentedJsonView = true
+                } label: {
+                    Text("Click")
                 }
+                Spacer()
             }
+            
             Toggle(isOn: $isShowCoordinate) {
                 Text("Visible Canvas Coordinate Grid")
             }
@@ -129,7 +133,7 @@ public struct DrawingResizedImageView: View {
                 )
                 .overlay {
                     if interactor.setting.imageSize != .zero {
-                        DrawingResizedImageCanvas(
+                        DrawingCanvas(
                             geometryProxy: geometryProxy,
                             setting: $interactor.setting,
                             layer: interactor.layer,

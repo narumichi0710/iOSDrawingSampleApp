@@ -1,5 +1,5 @@
 //
-//  DrawingResizedImageView.swift
+//  DrawingScroolView.swift
 //
 //
 //  Created by Narumichi Kubo on 2023/09/16.
@@ -10,7 +10,8 @@ import Service
 import ViewExtension
 import Repository
 
-public struct DrawingOriginalImageView: View {
+
+public struct DrawingScroolView: View {
     @Environment(\.dismiss) var dismiss
     @StateObject private var interactor: DrawingInteractor
     
@@ -123,7 +124,7 @@ public struct DrawingOriginalImageView: View {
                             interactor.setting.offset = offset
                         }
                     ) {
-                        DrawingOriginalImageCanvas(
+                        DrawingScroolCanvas(
                             geo: geo,
                             setting: $interactor.setting,
                             layer: interactor.layer,

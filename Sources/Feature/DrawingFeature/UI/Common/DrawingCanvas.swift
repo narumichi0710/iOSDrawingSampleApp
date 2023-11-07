@@ -1,6 +1,6 @@
 //
-//  DrawingResisedImageCanvas.swift
-//  
+//  DrawingCanvas.swift
+//
 //
 //  Created by Narumichi Kubo on 2023/11/06.
 //
@@ -10,7 +10,7 @@ import Service
 import ViewExtension
 import Repository
 
-public struct DrawingResizedImageCanvas: View {
+public struct DrawingCanvas: View {
     @Binding private var isShowCoordinate: Bool
     @Binding private var currentCoordinate: String
     

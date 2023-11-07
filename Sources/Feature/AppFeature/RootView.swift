@@ -23,11 +23,15 @@ public struct RootView: View {
             List {
                 NavigationLink(
                     mockFiles[0].name,
-                    destination: DrawingResizedImageView(drawingService: factory.drawingService, file: mockFiles[0])
+                    destination: DrawingView(drawingService: factory.drawingService, file: mockFiles[0])
                 )
                 NavigationLink(
                     mockFiles[1].name,
-                    destination: DrawingOriginalImageView(drawingService: factory.drawingService, file: mockFiles[1])
+                    destination: DrawingNDCView(drawingService: factory.drawingService, file: mockFiles[1])
+                )
+                NavigationLink(
+                    mockFiles[2].name,
+                    destination: DrawingScroolView(drawingService: factory.drawingService, file: mockFiles[2])
                 )
             }
             .navigationTitle("drawing sample app")

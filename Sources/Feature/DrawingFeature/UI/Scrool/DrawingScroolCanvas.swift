@@ -1,5 +1,5 @@
 //
-//  DrawingOriginalImageCanvas.swift
+//  DrawingScroolCanvas.swift
 //
 //
 //  Created by Narumichi Kubo on 2023/09/17.
@@ -11,7 +11,7 @@ import Repository
 import ViewExtension
 import UIKit
 
-public struct DrawingOriginalImageCanvas: View {
+public struct DrawingScroolCanvas: View {
     @Binding private var isShowCoordinate: Bool
     @Binding private var currentCoordinate: String
     

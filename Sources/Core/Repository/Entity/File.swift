@@ -20,9 +20,7 @@ public struct File {
 }
 
 public var mockFiles = [
-    File(name: "drawing resized image"),
-    File(name: "drawing original image"),
-    File(name: "file_3"),
-    File(name: "file_4"),
-    File(name: "file_5")
+    File(name: "Drawing Canvas (DC ↔︎ IC)"),
+    File(name: "Drawing Canvas (DC ↔︎ NDC)"),
+    File(name: "Drawing Canvas with Scrool (not working)"),
 ]
