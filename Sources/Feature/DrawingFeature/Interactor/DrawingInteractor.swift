@@ -1,6 +1,6 @@
 //
 //  DrawingInteractor.swift
-//  
+//
 //
 //  Created by Narumichi Kubo on 2023/09/16.
 //
@@ -16,6 +16,7 @@ public class DrawingInteractor: ObservableObject {
     
     @Published var setting = DrawingSettingData()
     @Published var layer = DrawingLayerData()
+    @Published var ndcLayer = DrawingLayerData()
     
     public init(drawingService: DrawingService, file: File) {
         self.drawingService = drawingService
@@ -118,11 +119,20 @@ public class DrawingInteractor: ObservableObject {
         let oldCanvasSize = setting.canvasSize
         setting.canvasSize = newCanvasSize
 
+        let applyLayer = layer
+        printLayer("previousLayer. canvasSize: \(oldCanvasSize.width)x\(oldCanvasSize.height), ", layer)
+
         // キャンバス座標をNDCに変換
-        let ndcLayer = convertCanvasToNDC(layer, oldCanvasSize)
+        let ndcLayer = convertCanvasToNDC(applyLayer, oldCanvasSize)
+
+        // ログ表示のため値を追加
+        self.ndcLayer = ndcLayer
+        printLayer("ndcLayer. canvasSize: \(setting.canvasSize.width)x\(setting.canvasSize.height),", ndcLayer)
+
         // NDCを新しいキャンバス座標に変換
         let newCanvasLayer = convertNDCToCanvas(ndcLayer, newCanvasSize)
-        
+        printLayer("newCanvasLayer. canvasSize: \(setting.canvasSize.width)x\(setting.canvasSize.height),", newCanvasLayer)
+
         layer = newCanvasLayer
     }
     
@@ -146,7 +156,6 @@ public class DrawingInteractor: ObservableObject {
                 object.onUpdate(normalizedStart, normalizedEnd)
             }
         }
-
         return ndcLayer
     }
 
@@ -179,15 +188,15 @@ public class DrawingInteractor: ObservableObject {
         _ point: Coordinate,
         _ canvasSize: CGSize
     ) -> Coordinate {
-        // キャンバス上の座標を0.0~1.0の範囲に正規化
-        let normalizedX = point.x / canvasSize.width
-        let normalizedY = point.y / canvasSize.height
+        // キャンバスの座標を0~1の範囲に変換
+        let scaledX = point.x / canvasSize.width
+        let scaledY = point.y / canvasSize.height
 
-        // 正規化された座標をNDC(-1.0~1.0)の範囲に変換
-        return Coordinate(
-            x: normalizedX * 2 - 1,
-            y: 1 - normalizedY * 2
-        )
+        // NDCの座標範囲(-1~1)に変換
+        let ndcX = (scaledX * 2) - 1
+        let ndcY = -((scaledY * 2) - 1)
+
+        return Coordinate(x: ndcX, y: ndcY)
     }
     
     /// NDCをキャンバスサイズに応じて座標に変換
@@ -195,14 +204,25 @@ public class DrawingInteractor: ObservableObject {
         _ ndc: Coordinate,
         _ canvasSize: CGSize
     ) -> Coordinate {
-        // NDCの範囲を0.0~1.0に逆正規化
-        let unNormalizedX = (ndc.x + 1) / 2
-        let unNormalizedY = (1 - ndc.y) / 2
+        // NDCの範囲を0~1に逆正規化
+        let unscaledX = (ndc.x + 1) / 2
+        let unscaledY = (1 - ndc.y) / 2
 
-        // 逆正規化された座標をキャンバスサイズにスケール
-        return Coordinate(
-            x: unNormalizedX * canvasSize.width,
-            y: unNormalizedY * canvasSize.height
-        )
+        // 0~1の範囲をキャンバス座標にスケール
+        let canvasX = unscaledX * canvasSize.width
+        let canvasY = unscaledY * canvasSize.height
+
+        return Coordinate(x: canvasX, y: canvasY)
+    }
+    
+    
+    private func printLayer(_ title: String, _ layer: DrawingLayerData) {
+        layer.objects.forEach { object in
+            if let object = object.asPencil(), let point = object.points.first {
+                print("\(title) object: [x:\(point.x), y:\(point.y)]")
+            } else {
+                print("\(title) object: [x:\(object.start.x) y:\(object.end.y)]")
+            }
+        }
     }
 }
