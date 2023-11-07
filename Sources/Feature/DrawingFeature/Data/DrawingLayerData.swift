@@ -57,6 +57,10 @@ public class DrawingLayerData: Equatable, ObservableObject {
         apply()
     }
     
+    public func copy() -> DrawingLayerData {
+        .init(id: UUID(), objects: objects.copy())
+    }
+
     // MARK: オブジェクト系
 
     public func append(_ object: DrawingObjectData) {

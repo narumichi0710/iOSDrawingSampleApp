@@ -12,7 +12,7 @@ public struct File {
     public var name: String
     public var imageUrl: String
     
-    public init(id: UUID = UUID(), name: String, imageUrl: String = "https://picsum.photos/300") {
+    public init(id: UUID = UUID(), name: String, imageUrl: String = "https://picsum.photos/513") {
         self.id = id
         self.name = name
         self.imageUrl = imageUrl

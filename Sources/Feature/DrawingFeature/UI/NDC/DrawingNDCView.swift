@@ -14,26 +14,21 @@ public struct DrawingNDCView: View {
     @Environment(\.dismiss) var dismiss
     @StateObject private var interactor: DrawingInteractor
     
-    @State private var isPresentedJsonView = false
+    @State private var isPresentedJsonView1 = false
+    @State private var isPresentedJsonView2 = false
 
     @State private var isShowCoordinate = false
     @State private var currentCoordinate = ""
     
     private var selectedType: DrawingObjectType { interactor.setting.type }
     private var selectedColor: DrawingObjectColor { interactor.setting.color }
-    
+        
     public init (
         drawingService: DrawingService,
         file: File
     ) {
         let interactor = DrawingInteractor(drawingService: drawingService, file: file)
         interactor.setting.canvasSize = .init(width: 300.0, height: 300.0)
-        _interactor = .init(wrappedValue: interactor)
-    }
-    
-    public init (
-        interactor: DrawingInteractor
-    ) {
         _interactor = .init(wrappedValue: interactor)
     }
     
@@ -49,13 +44,17 @@ public struct DrawingNDCView: View {
             
             NavigationLink(
                 "",
-                isActive: $isPresentedJsonView,
+                isActive: $isPresentedJsonView1,
                 destination: {
-                    JsonView(
-                        layer: interactor.convertCanvasToNDC(
-                            interactor.layer, interactor.setting.canvasSize
-                        )
-                    )
+                    JsonView(layer: interactor.layer)
+                }
+            )
+            
+            NavigationLink(
+                "",
+                isActive: $isPresentedJsonView2,
+                destination: {
+                    JsonView(layer: interactor.ndcLayer)
                 }
             )
         }
@@ -100,7 +99,16 @@ public struct DrawingNDCView: View {
             HStack {
                 Text("Check Json Data")
                 Button {
-                    isPresentedJsonView = true
+                    isPresentedJsonView1 = true
+                } label: {
+                    Text("Click")
+                }
+                Spacer()
+            }
+            HStack {
+                Text("Check NDC Json Data")
+                Button {
+                    isPresentedJsonView2 = true
                 } label: {
                     Text("Click")
                 }

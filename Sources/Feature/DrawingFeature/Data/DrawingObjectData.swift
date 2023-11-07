@@ -59,6 +59,20 @@ public class DrawingPencilObjectData: DrawingObjectData {
     public var points: [Coordinate]
     public var lineWidth: Double
 
+    public init(entity: DrawingPencilObjectEntity) {
+        points = entity.points
+        lineWidth = entity.lineWidth
+        super.init(data: entity)
+    }
+    
+    public init(
+        object: DrawingPencilObjectData
+    ) {
+        self.points = object.points
+        self.lineWidth = object.lineWidth
+        super.init(data: object.data)
+    }
+    
     public func onCreatePath(_ point: Coordinate) {
         points.append(point)
         apply()
@@ -73,11 +87,6 @@ public class DrawingPencilObjectData: DrawingObjectData {
     ) {
         self.points = points
         super.onUpdate(start, end)
-    }
-    public init(entity: DrawingPencilObjectEntity) {
-        points = entity.points
-        lineWidth = entity.lineWidth
-        super.init(data: entity)
     }
 
     public static func create(
@@ -106,6 +115,13 @@ public class DrawingArrowObjectData: DrawingObjectData {
         super.init(data: entity)
     }
     
+    public init(
+        object: DrawingArrowObjectData
+    ) {
+        self.lineWidth = object.lineWidth
+        super.init(data: object.data)
+    }
+
     public static func create(
         _ setting: DrawingSettingData,
         _ coordinate: Coordinate
@@ -129,6 +145,13 @@ public class DrawingRectangleObjectData: DrawingObjectData {
     public init(entity: DrawingRectangleObjectEntity) {
         lineWidth = entity.lineWidth
         super.init(data: entity)
+    }
+    
+    public init(
+        object: DrawingRectangleObjectData
+    ) {
+        self.lineWidth = object.lineWidth
+        super.init(data: object.data)
     }
     
     public static func create(
@@ -156,6 +179,13 @@ public class DrawingCircleObjectData: DrawingObjectData {
         super.init(data: entity)
     }
     
+    public init(
+        object: DrawingCircleObjectData
+    ) {
+        self.lineWidth = object.lineWidth
+        super.init(data: object.data)
+    }
+    
     public static func create(
         _ setting: DrawingSettingData,
         _ coordinate: Coordinate
@@ -172,24 +202,6 @@ public class DrawingCircleObjectData: DrawingObjectData {
     }
 }
 
-public extension DrawingObjectData {
-    func asPencil() -> DrawingPencilObjectData? {
-        self as? DrawingPencilObjectData
-    }
-    func asArrow() -> DrawingArrowObjectData? {
-        self as? DrawingArrowObjectData
-    }
-    func asRectangle() -> DrawingRectangleObjectData? {
-        self as? DrawingRectangleObjectData
-    }
-    func asCircle() -> DrawingCircleObjectData? {
-        self as? DrawingCircleObjectData
-    }
-    func asText() -> DrawingTextObjectData? {
-        self as? DrawingTextObjectData
-    }
-}
-
 /// テキスト
 public class DrawingTextObjectData: DrawingObjectData {
     public var backgroundColor: DrawingObjectColor
@@ -199,6 +211,14 @@ public class DrawingTextObjectData: DrawingObjectData {
         backgroundColor = entity.backgroundColor
         text = entity.text
         super.init(data: entity)
+    }
+    
+    public init(
+        object: DrawingTextObjectData
+    ) {
+        self.backgroundColor = object.backgroundColor
+        self.text = object.text
+        super.init(data: object.data)
     }
     
     public static func create(
@@ -236,7 +256,45 @@ public class DrawingTextObjectData: DrawingObjectData {
 }
 
 
+public extension DrawingObjectData {
+    func asPencil() -> DrawingPencilObjectData? {
+        self as? DrawingPencilObjectData
+    }
+    func asArrow() -> DrawingArrowObjectData? {
+        self as? DrawingArrowObjectData
+    }
+    func asRectangle() -> DrawingRectangleObjectData? {
+        self as? DrawingRectangleObjectData
+    }
+    func asCircle() -> DrawingCircleObjectData? {
+        self as? DrawingCircleObjectData
+    }
+    func asText() -> DrawingTextObjectData? {
+        self as? DrawingTextObjectData
+    }
+}
 
 public extension DrawingObjectColor {
     var toUIColor: Color { .init(hex: rawValue) }
+}
+
+public extension [DrawingObjectData] {
+    func copy() -> [DrawingObjectData] {
+        var objects = [DrawingObjectData]()
+         
+        forEach { object in
+            if let object = object.asPencil() {
+                objects.append(DrawingPencilObjectData(object: object))
+            } else if let object = object.asArrow() {
+                objects.append(DrawingArrowObjectData(object: object))
+            } else if let object = object.asRectangle() {
+                objects.append(DrawingRectangleObjectData(object: object))
+            } else if let object = object.asCircle() {
+                objects.append(DrawingCircleObjectData(object: object))
+            } else if let object = object.asText() {
+                objects.append(DrawingTextObjectData(object: object))
+            }
+        }
+        return objects
+    }
 }
