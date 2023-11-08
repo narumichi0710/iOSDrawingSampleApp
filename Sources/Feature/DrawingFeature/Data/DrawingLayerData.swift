@@ -24,26 +24,17 @@ public class DrawingLayerData: Equatable, ObservableObject {
     public init(_ entity: DrawingLayerEntity) {
         var objects = [DrawingObjectData]()
         
-        if let pencils = entity.pencilObjects {
-            let object = pencils.map { DrawingPencilObjectData(entity: $0) }
-            objects.append(contentsOf: object)
-        }
-        if let arrows = entity.arrowObjects {
-            let object = arrows.map { DrawingArrowObjectData(entity: $0) }
-            objects.append(contentsOf: object)
-        }
-        if let pencils = entity.rectangleObjects {
-            let object = pencils.map { DrawingRectangleObjectData(entity: $0) }
-            objects.append(contentsOf: object)
-        }
-        if let circles = entity.circleObjects {
-            let object = circles.map { DrawingCircleObjectData(entity: $0) }
-            objects.append(contentsOf: object)
-        }
-        if let texts = entity.textObjects {
-            let object = texts.map { DrawingTextObjectData(entity: $0) }
-            objects.append(contentsOf: object)
-        }
+        let pencilObjects = entity.pencilObjects.map { DrawingPencilObjectData(entity: $0) }
+        let arrowObjects = entity.arrowObjects.map { DrawingArrowObjectData(entity: $0) }
+        let rectangleObjects = entity.rectangleObjects.map { DrawingRectangleObjectData(entity: $0) }
+        let circleObjects = entity.circleObjects .map { DrawingCircleObjectData(entity: $0) }
+        let textObjects = entity.textObjects.map { DrawingTextObjectData(entity: $0) }
+
+        objects.append(contentsOf: pencilObjects)
+        objects.append(contentsOf: arrowObjects)
+        objects.append(contentsOf: rectangleObjects)
+        objects.append(contentsOf: circleObjects)
+        objects.append(contentsOf: textObjects)
 
         self.id = entity.id
         self.objects = objects
