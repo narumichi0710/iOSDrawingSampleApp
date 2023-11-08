@@ -196,21 +196,56 @@ public struct RemoteRectangleObject: View {
 public struct RemoteCircleObject: View {
     @ObservedObject var object: DrawingCircleObjectData
 
+    @State var start: CGPoint?
+    @State var end: CGPoint?
+    
     public var body: some View {
-        Path { path in
-            // 始点と終点の中間点を計算（円の中心点）
-            let centerX = (object.start.x + object.end.x) / 2
-            let centerY = (object.start.y + object.end.y) / 2
-            let center = CGPoint(x: centerX, y: centerY)
-            
-            // 始点と終点の距離を計算（円の直径）
-            let diameter = sqrt(pow(object.end.x - object.start.x, 2) + pow(object.end.y - object.start.y, 2))
-            let radius = diameter / 2
-            
-            // 中心点と半径を使って円を追加
-            path.addEllipse(in: CGRect(x: center.x - radius, y: center.y - radius, width: diameter, height: diameter))
+        ZStack {
+            if let start, let end {
+                Path { path in
+                    // 始点と終点の中間点を計算（円の中心点）
+                    let centerX = (start.x + end.x) / 2
+                    let centerY = (start.y + end.y) / 2
+                    let center = CGPoint(x: centerX, y: centerY)
+                    
+                    // 始点と終点の距離を計算（円の直径）
+                    let diameter = sqrt(pow(end.x - start.x, 2) + pow(end.y - start.y, 2))
+                    let radius = diameter / 2
+                    
+                    // 中心点と半径を使って円を追加
+                    path.addEllipse(in: CGRect(x: center.x - radius, y: center.y - radius, width: diameter, height: diameter))
+                }
+                .stroke(object.color.toUIColor, lineWidth: object.lineWidth)
+            }
         }
-        .stroke(object.color.toUIColor, lineWidth: object.lineWidth)
+        .onAppear(perform: addTrajectoryWithInterval)
+    }
+    
+    func addTrajectoryWithInterval() {
+        Task {
+            updateStart(object.start.cgPoint)
+            for coordinate in object.trajectory {
+                let duration = UInt64(coordinate.interval * 1_000_000_000)
+                // 指定されたインターバルだけ待機する
+                try? await Task.sleep(nanoseconds: duration)
+                updateEnd(coordinate.cgPoint)
+            }
+            updateEnd(object.end.cgPoint)
+        }
+    }
+    
+    @MainActor
+    func updateStart(_ start: CGPoint) {
+        withAnimation {
+            self.start = start
+        }
+    }
+    
+    @MainActor
+    func updateEnd(_ end: CGPoint) {
+        withAnimation {
+            self.end = end
+        }
     }
 }
 
