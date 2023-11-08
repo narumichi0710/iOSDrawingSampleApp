@@ -23,8 +23,27 @@ public class DrawingLayerData: Equatable, ObservableObject {
 
     public init(_ entity: DrawingLayerEntity) {
         var objects = [DrawingObjectData]()
-        let pencils = entity.pencilObjects.map { DrawingPencilObjectData(entity: $0) }
-        objects.append(contentsOf: pencils)
+        
+        if let pencils = entity.pencilObjects {
+            let object = pencils.map { DrawingPencilObjectData(entity: $0) }
+            objects.append(contentsOf: object)
+        }
+        if let arrows = entity.arrowObjects {
+            let object = arrows.map { DrawingArrowObjectData(entity: $0) }
+            objects.append(contentsOf: object)
+        }
+        if let pencils = entity.rectangleObjects {
+            let object = pencils.map { DrawingRectangleObjectData(entity: $0) }
+            objects.append(contentsOf: object)
+        }
+        if let circles = entity.circleObjects {
+            let object = circles.map { DrawingCircleObjectData(entity: $0) }
+            objects.append(contentsOf: object)
+        }
+        if let texts = entity.textObjects {
+            let object = texts.map { DrawingTextObjectData(entity: $0) }
+            objects.append(contentsOf: object)
+        }
 
         self.id = entity.id
         self.objects = objects
