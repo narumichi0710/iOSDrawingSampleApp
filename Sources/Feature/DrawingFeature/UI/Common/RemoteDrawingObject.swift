@@ -44,10 +44,10 @@ public struct RemotePencilObject: View {
             }
             .stroke(object.color.toUIColor, lineWidth: object.lineWidth)
         }
-        .onAppear(perform: addPointsWithInterval)
+        .onAppear(perform: addTrajectoryWithInterval)
     }
     
-    func addPointsWithInterval() {
+    func addTrajectoryWithInterval() {
         Task {
             for coordinate in object.trajectory {
                 let duration = UInt64(coordinate.interval * 1_000_000_000)
