@@ -161,7 +161,7 @@ public class DrawingRectangleObjectData: DrawingObjectData {
     ) -> DrawingRectangleObjectData {
         .init(entity: .init(
             id: UUID(),
-            type: .arrowLine,
+            type: .rectangle,
             state: .created,
             start: coordinate,
             end: coordinate,
@@ -193,7 +193,7 @@ public class DrawingCircleObjectData: DrawingObjectData {
     ) -> DrawingCircleObjectData {
         .init(entity: .init(
             id: UUID(),
-            type: .arrowLine,
+            type: .circle,
             state: .created,
             start: coordinate,
             end: coordinate,
@@ -228,7 +228,7 @@ public class DrawingTextObjectData: DrawingObjectData {
     ) -> DrawingTextObjectData {
         .init(entity: .init(
             id: UUID(),
-            type: .arrowLine,
+            type: .text,
             state: .created,
             start: coordinate,
             end: coordinate,
