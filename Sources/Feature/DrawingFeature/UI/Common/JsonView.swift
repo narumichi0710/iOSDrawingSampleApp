@@ -27,11 +27,15 @@ public struct JsonView: View {
     
     public var body: some View {
         ScrollView {
-            if let jsonString = jsonString {
-                Text(jsonString)
-                    .font(.body)
-                    .padding()
-                    .border(Color.gray, width: 1)
+            if let jsonData, let jsonString = jsonString {
+                VStack {
+                    Text("\(jsonData.count) bytes")
+                        .padding()
+                    Text(jsonString)
+                        .font(.body)
+                        .padding()
+                        .border(Color.gray, width: 1)
+                }
             } else {
                 Text("JSONの変換に失敗しました。")
                     .foregroundColor(.red)
