@@ -176,8 +176,11 @@ public struct DrawingScroolCanvas: View {
     }
 
     private func onUpdatedDrawing(_ object: DrawingObjectData, _ coordinate: Coordinate) {
-        if let object = object.asPencil() {
-            object.onCreatePath(coordinate)
+        // 軌跡を追加
+        object.onAddRrajectory(coordinate)
+
+        if object.asPencil() != nil {
+            object.onEnd(coordinate)
         } else if object.asArrow() != nil {
             object.onEnd(coordinate)
         } else if object.asRectangle() != nil {

@@ -35,12 +35,12 @@ public struct RemoteDrawingObject: View {
 /// ペン
 public struct RemotePencilObject: View {
     @ObservedObject var object: DrawingPencilObjectData
-    @State var points = [CGPoint]()
+    @State var trajectory = [CGPoint]()
 
     public var body: some View {
         ZStack {
             Path { path in
-                path.addLines(points)
+                path.addLines(trajectory)
             }
             .stroke(object.color.toUIColor, lineWidth: object.lineWidth)
         }
@@ -49,19 +49,19 @@ public struct RemotePencilObject: View {
     
     func addPointsWithInterval() {
         Task {
-            for coordinate in object.points {
+            for coordinate in object.trajectory {
                 let duration = UInt64(coordinate.interval * 1_000_000_000)
                 // 指定されたインターバルだけ待機する
                 try? await Task.sleep(nanoseconds: duration)
-                addPoint(coordinate.cgPoint)
+                addTrajectory(coordinate.cgPoint)
             }
         }
     }
        
     @MainActor
-    func addPoint(_ point: CGPoint) {
+    func addTrajectory(_ trajectory: CGPoint) {
         withAnimation {
-            points.append(point)
+            self.trajectory.append(trajectory)
         }
     }
 }

@@ -32,11 +32,11 @@ public struct LocalDrawingObject: View {
 /// ペン
 public struct LocalPencilObject: View {
     @ObservedObject var object: DrawingPencilObjectData
-    private var points: [CGPoint] { object.points.map(\.cgPoint) }
+    private var trajectory: [CGPoint] { object.trajectory.map(\.cgPoint) }
 
     public var body: some View {
         Path { path in
-            path.addLines(points)
+            path.addLines(trajectory)
         }
         .stroke(object.color.toUIColor, lineWidth: object.lineWidth)
     }

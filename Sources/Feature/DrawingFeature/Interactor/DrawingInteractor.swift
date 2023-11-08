@@ -64,7 +64,7 @@ public class DrawingInteractor: ObservableObject {
 
             // ペンの場合、点も変換
             if let pencilObject = object.asPencil() {
-                let adjustedCoordinates = pencilObject.points.map { scaleCoordinateByRatio($0, xRatio, yRatio) }
+                let adjustedCoordinates = pencilObject.trajectory.map { scaleCoordinateByRatio($0, xRatio, yRatio) }
                 pencilObject.onUpdate(adjustedCoordinates, adjustedStart, adjustedEnd)
             } else {
                 object.onUpdate(adjustedStart, adjustedEnd)
@@ -91,7 +91,7 @@ public class DrawingInteractor: ObservableObject {
 
             // ペンの場合、点も変換
             if let pencilObject = object.asPencil() {
-                let adjustedCoordinates = pencilObject.points.map { scaleCoordinateByRatio($0, xRatio, yRatio) }
+                let adjustedCoordinates = pencilObject.trajectory.map { scaleCoordinateByRatio($0, xRatio, yRatio) }
                 pencilObject.onUpdate(adjustedCoordinates, adjustedStart, adjustedEnd)
             } else {
                 object.onUpdate(adjustedStart, adjustedEnd)
@@ -150,7 +150,7 @@ public class DrawingInteractor: ObservableObject {
             
             // ペンの場合、点も正規化
             if let pencilObject = object.asPencil() {
-                let normalizedCoordinates = pencilObject.points.map { normalizeCoordinate($0, canvasSize) }
+                let normalizedCoordinates = pencilObject.trajectory.map { normalizeCoordinate($0, canvasSize) }
                 pencilObject.onUpdate(normalizedCoordinates, normalizedStart, normalizedEnd)
             } else {
                 object.onUpdate(normalizedStart, normalizedEnd)
@@ -173,7 +173,7 @@ public class DrawingInteractor: ObservableObject {
 
             // ペンの場合、点も変換
             if let pencilObject = object.asPencil() {
-                let unnormalizedCoordinates = pencilObject.points.map { unnormalizeCoordinate($0, canvasSize) }
+                let unnormalizedCoordinates = pencilObject.trajectory.map { unnormalizeCoordinate($0, canvasSize) }
                 pencilObject.onUpdate(unnormalizedCoordinates, unnormalizedStart, unnormalizedEnd)
             } else {
                 object.onUpdate(unnormalizedStart, unnormalizedEnd)
@@ -218,8 +218,8 @@ public class DrawingInteractor: ObservableObject {
     
     private func printLayer(_ title: String, _ layer: DrawingLayerData) {
         layer.objects.forEach { object in
-            if let object = object.asPencil(), let point = object.points.first {
-                print("\(title) object: [x:\(point.x), y:\(point.y)]")
+            if let object = object.asPencil(), let trajectory = object.trajectory.first {
+                print("\(title) object: [x:\(trajectory.x), y:\(trajectory.y)]")
             } else {
                 print("\(title) object: [x:\(object.start.x) y:\(object.end.y)]")
             }

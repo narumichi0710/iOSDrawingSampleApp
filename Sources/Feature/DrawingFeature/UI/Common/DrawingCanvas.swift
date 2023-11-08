@@ -183,8 +183,11 @@ public struct DrawingCanvas: View {
     }
 
     private func onUpdatedDrawing(_ object: DrawingObjectData, _ coordinate: Coordinate) {
-        if let object = object.asPencil() {
-            object.onCreatePath(coordinate)
+        // 軌跡を追加
+        object.onAddRrajectory(coordinate)
+
+        if object.asPencil() != nil {
+            object.onEnd(coordinate)
         } else if object.asArrow() != nil {
             object.onEnd(coordinate)
         } else if object.asRectangle() != nil {
@@ -196,9 +199,6 @@ public struct DrawingCanvas: View {
     }
 
     private func onEndedDrawing(_ coordinate: Coordinate) {
-        if let object = layer.editingObject?.asPencil() {
-            object.onEndDrawing()
-        }
         layer.editingObject?.onEnd(coordinate)
         layer.appendEditingObject()
         layer.apply()

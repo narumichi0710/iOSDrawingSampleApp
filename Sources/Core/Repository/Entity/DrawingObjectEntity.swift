@@ -14,6 +14,7 @@ public protocol DrawingObjectProperty: Codable {
     var start: Coordinate { get set }
     var end: Coordinate { get set }
     var color: DrawingObjectColor { get }
+    var trajectory: [Coordinate] { get set }
 }
 
 /// ペン
@@ -24,19 +25,18 @@ public struct DrawingPencilObjectEntity: DrawingObjectProperty, Codable {
     public var start: Coordinate
     public var end: Coordinate
     public var color: DrawingObjectColor
-
-    public var points: [Coordinate]
     public var lineWidth: Double
+    public var trajectory: [Coordinate]
 
-    public init(id: UUID, type: DrawingObjectType, state: DrawingObjectState, start: Coordinate, end: Coordinate, color: DrawingObjectColor, points: [Coordinate], lineWidth: Double) {
+    public init(id: UUID, type: DrawingObjectType, state: DrawingObjectState, start: Coordinate, end: Coordinate, color: DrawingObjectColor, lineWidth: Double, trajectory: [Coordinate]) {
         self.id = id
         self.type = type
         self.state = state
         self.start = start
         self.end = end
         self.color = color
-        self.points = points
         self.lineWidth = lineWidth
+        self.trajectory = trajectory
     }
 }
 
@@ -49,8 +49,9 @@ public struct DrawingArrowObjectEntity: DrawingObjectProperty, Codable {
     public var end: Coordinate
     public var color: DrawingObjectColor
     public var lineWidth: Double
+    public var trajectory: [Coordinate]
     
-    public init(id: UUID, type: DrawingObjectType, state: DrawingObjectState, start: Coordinate, end: Coordinate, color: DrawingObjectColor, lineWidth: Double) {
+    public init(id: UUID, type: DrawingObjectType, state: DrawingObjectState, start: Coordinate, end: Coordinate, color: DrawingObjectColor, lineWidth: Double, trajectory: [Coordinate]) {
         self.id = id
         self.type = type
         self.state = state
@@ -58,6 +59,7 @@ public struct DrawingArrowObjectEntity: DrawingObjectProperty, Codable {
         self.end = end
         self.color = color
         self.lineWidth = lineWidth
+        self.trajectory = trajectory
     }
 }
 
@@ -70,8 +72,9 @@ public struct DrawingRectangleObjectEntity: DrawingObjectProperty, Codable {
     public var end: Coordinate
     public var color: DrawingObjectColor
     public var lineWidth: Double
-
-    public init(id: UUID, type: DrawingObjectType, state: DrawingObjectState, start: Coordinate, end: Coordinate, color: DrawingObjectColor, lineWidth: Double) {
+    public var trajectory: [Coordinate]
+    
+    public init(id: UUID, type: DrawingObjectType, state: DrawingObjectState, start: Coordinate, end: Coordinate, color: DrawingObjectColor, lineWidth: Double, trajectory: [Coordinate]) {
         self.id = id
         self.type = type
         self.state = state
@@ -79,6 +82,7 @@ public struct DrawingRectangleObjectEntity: DrawingObjectProperty, Codable {
         self.end = end
         self.color = color
         self.lineWidth = lineWidth
+        self.trajectory = trajectory
     }
 }
 
@@ -91,8 +95,9 @@ public struct DrawingCircleObjectEntity: DrawingObjectProperty, Codable {
     public var end: Coordinate
     public var color: DrawingObjectColor
     public var lineWidth: Double
-
-    public init(id: UUID, type: DrawingObjectType, state: DrawingObjectState, start: Coordinate, end: Coordinate, color: DrawingObjectColor, lineWidth: Double) {
+    public var trajectory: [Coordinate]
+    
+    public init(id: UUID, type: DrawingObjectType, state: DrawingObjectState, start: Coordinate, end: Coordinate, color: DrawingObjectColor, lineWidth: Double, trajectory: [Coordinate]) {
         self.id = id
         self.type = type
         self.state = state
@@ -100,6 +105,7 @@ public struct DrawingCircleObjectEntity: DrawingObjectProperty, Codable {
         self.end = end
         self.color = color
         self.lineWidth = lineWidth
+        self.trajectory = trajectory
     }
 }
 
@@ -113,8 +119,9 @@ public struct DrawingTextObjectEntity: DrawingObjectProperty, Codable {
     public var color: DrawingObjectColor
     public var backgroundColor: DrawingObjectColor
     public var text: String
+    public var trajectory: [Coordinate]
 
-    public init(id: UUID, type: DrawingObjectType, state: DrawingObjectState, start: Coordinate, end: Coordinate, color: DrawingObjectColor, backgroundColor: DrawingObjectColor, text: String) {
+    public init(id: UUID, type: DrawingObjectType, state: DrawingObjectState, start: Coordinate, end: Coordinate, color: DrawingObjectColor, backgroundColor: DrawingObjectColor, text: String, trajectory: [Coordinate]) {
         self.id = id
         self.type = type
         self.state = state
@@ -123,5 +130,6 @@ public struct DrawingTextObjectEntity: DrawingObjectProperty, Codable {
         self.color = color
         self.backgroundColor = backgroundColor
         self.text = text
+        self.trajectory = trajectory
     }
 }

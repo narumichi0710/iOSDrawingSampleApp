@@ -18,7 +18,8 @@ public class DrawingObjectData: Equatable, ObservableObject {
     public var start: Coordinate { data.start }
     public var end: Coordinate { data.end }
     public var color: DrawingObjectColor { data.color }
-    
+    public var trajectory: [Coordinate] { data.trajectory }
+
     @Published private var modified: Date = .now
 
     public init(data: DrawingObjectProperty) {
@@ -27,6 +28,11 @@ public class DrawingObjectData: Equatable, ObservableObject {
     
     public func onStart(_ value: Coordinate) {
         data.start = value
+        apply()
+    }
+    
+    public func onAddRrajectory(_ coordinate: Coordinate) {
+        data.trajectory.append(coordinate)
         apply()
     }
     
@@ -56,11 +62,9 @@ public class DrawingObjectData: Equatable, ObservableObject {
 
 /// ペン
 public class DrawingPencilObjectData: DrawingObjectData {
-    public var points: [Coordinate]
     public var lineWidth: Double
 
     public init(entity: DrawingPencilObjectEntity) {
-        points = entity.points
         lineWidth = entity.lineWidth
         super.init(data: entity)
     }
@@ -68,25 +72,16 @@ public class DrawingPencilObjectData: DrawingObjectData {
     public init(
         object: DrawingPencilObjectData
     ) {
-        self.points = object.points
         self.lineWidth = object.lineWidth
         super.init(data: object.data)
     }
-    
-    public func onCreatePath(_ coordinate: Coordinate) {
-        points.append(coordinate)
-        apply()
-    }
-
-
-    public func onEndDrawing() {}
 
     public func onUpdate(
-        _ points: [Coordinate],
+        _ trajectory: [Coordinate],
         _ start: Coordinate,
         _ end: Coordinate
     ) {
-        self.points = points
+        data.trajectory = trajectory
         super.onUpdate(start, end)
     }
 
@@ -101,8 +96,8 @@ public class DrawingPencilObjectData: DrawingObjectData {
             start: coordinate,
             end: coordinate,
             color: setting.color,
-            points: .init(),
-            lineWidth: setting.lineWidth
+            lineWidth: setting.lineWidth,
+            trajectory: [coordinate]
         ))
     }
 }
@@ -134,7 +129,8 @@ public class DrawingArrowObjectData: DrawingObjectData {
             start: coordinate,
             end: coordinate,
             color: setting.color,
-            lineWidth: setting.lineWidth
+            lineWidth: setting.lineWidth,
+            trajectory: [coordinate]
         ))
     }
 }
@@ -166,7 +162,8 @@ public class DrawingRectangleObjectData: DrawingObjectData {
             start: coordinate,
             end: coordinate,
             color: setting.color,
-            lineWidth: setting.lineWidth
+            lineWidth: setting.lineWidth,
+            trajectory: [coordinate]
         ))
     }
 }
@@ -198,7 +195,8 @@ public class DrawingCircleObjectData: DrawingObjectData {
             start: coordinate,
             end: coordinate,
             color: setting.color,
-            lineWidth: setting.lineWidth
+            lineWidth: setting.lineWidth,
+            trajectory: [coordinate]
         ))
     }
 }
@@ -234,7 +232,8 @@ public class DrawingTextObjectData: DrawingObjectData {
             end: coordinate,
             color: setting.color,
             backgroundColor: getBackgroudColor(setting.color),
-            text: setting.text
+            text: setting.text,
+            trajectory: [coordinate]
         ))
     }
     
