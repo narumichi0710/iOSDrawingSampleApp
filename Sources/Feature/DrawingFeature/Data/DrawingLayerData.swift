@@ -86,18 +86,35 @@ public class DrawingLayerData: Equatable, ObservableObject {
 public extension DrawingLayerData {
     func toEntity() -> DrawingLayerEntity {
         var pencilEntities = [DrawingPencilObjectEntity]()
-
+        var arrowEntities = [DrawingArrowObjectEntity]()
+        var rectangleEntities = [DrawingRectangleObjectEntity]()
+        var circleEntities = [DrawingCircleObjectEntity]()
+        var textEntities = [DrawingTextObjectEntity]()
+        
         objects.forEach {
             switch $0.data {
             case let pencilObject as DrawingPencilObjectEntity:
                 pencilEntities.append(pencilObject)
+            case let arrowObject as DrawingArrowObjectEntity:
+                arrowEntities.append(arrowObject)
+            case let rectangleObject as DrawingRectangleObjectEntity:
+                rectangleEntities.append(rectangleObject)
+            case let circleObject as DrawingCircleObjectEntity:
+                circleEntities.append(circleObject)
+            case let textObject as DrawingTextObjectEntity:
+                textEntities.append(textObject)
             default:
                 break
             }
         }
+
         return .init(
             id: id,
-            pencilObjects: pencilEntities
+            pencilObjects: pencilEntities,
+            arrowObjects: arrowEntities,
+            rectangleObjects: rectangleEntities,
+            circleObjects: circleEntities,
+            textObjects: textEntities
         )
     }
 }
