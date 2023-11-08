@@ -44,11 +44,11 @@ public struct DrawingScroolCanvas: View {
             }
             // 編集済のオブジェクト
             ForEach(layer.objects, id: \.id) {
-                DrawingObject(object: $0)
+                LocalDrawingObject(object: $0)
             }
             // 編集中のオブジェクト
             if let objects = layer.editingObject {
-                DrawingObject(object: objects)
+                LocalDrawingObject(object: objects)
             }
             // 描画用オーバーレイ
             gestureOverlay()

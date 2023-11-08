@@ -18,8 +18,10 @@ public struct DrawingCanvas: View {
     @ObservedObject private var layer: DrawingLayerData
     private let geometryProxy: GeometryProxy
 
-    @State private var isShowExternalOverlay = false
+    @State private var isShowExternalOverlay = false    
 
+    @State private var previousTime: TimeInterval = .zero
+    
     public init(
         geometryProxy: GeometryProxy,
         setting: Binding<DrawingSettingData>,
@@ -42,11 +44,11 @@ public struct DrawingCanvas: View {
             }
             // 編集済のオブジェクト
             ForEach(layer.objects, id: \.id) {
-                DrawingObject(object: $0)
+                LocalDrawingObject(object: $0)
             }
             // 編集中のオブジェクト
             if let objects = layer.editingObject {
-                DrawingObject(object: objects)
+                LocalDrawingObject(object: objects)
             }
             // 描画用オーバーレイ
             gestureOverlay()
@@ -63,18 +65,24 @@ public struct DrawingCanvas: View {
             .gesture(
                 DragGesture(minimumDistance: 0.0)
                     .onChanged {
+                        let currentTime = $0.time.timeIntervalSince1970
+                        let interval = previousTime == .zero ? 0.0 : currentTime - previousTime
+                        let coordinate = Coordinate(x: $0.location.x, y: $0.location.y, interval: interval)
+
                         if $0.startLocation == $0.location {
-                            onTapedCanvas(.init(x: $0.location.x, y: $0.location.y))
+                            onTapedCanvas(coordinate)
                         } else {
                             guard let object = layer.editingObject else {
-                                onCreatedDrawing(.init(x: $0.location.x, y: $0.location.y))
+                                onCreatedDrawing(coordinate)
                                 return
                             }
-                            onUpdatedDrawing(object, .init(x: $0.location.x, y: $0.location.y))
+                            onUpdatedDrawing(object, coordinate)
                         }
+                        previousTime = currentTime
                         currentCoordinate = "x: \(Int($0.location.x)), y: \(Int($0.location.y))"
                     }.onEnded {
-                        onEndedDrawing(.init(x: $0.location.x, y: $0.location.y))
+                        let coordinate = Coordinate(x: $0.location.x, y: $0.location.y)
+                        onEndedDrawing(coordinate)
                     }
             )
     }
@@ -161,7 +169,7 @@ public struct DrawingCanvas: View {
     private func onCreatedDrawing(_ coordinate: Coordinate) {
         switch setting.type {
         case .pencil:
-            layer.editingObject = DrawingPencilObjectData.create(setting, coordinate)
+            layer.editingObject =  DrawingPencilObjectData.create(setting, coordinate)
         case .arrowLine:
             layer.editingObject = DrawingArrowObjectData.create(setting, coordinate)
         case .rectangle:
@@ -188,8 +196,13 @@ public struct DrawingCanvas: View {
     }
 
     private func onEndedDrawing(_ coordinate: Coordinate) {
+        if let object = layer.editingObject?.asPencil() {
+            object.onEndDrawing()
+        }
         layer.editingObject?.onEnd(coordinate)
         layer.appendEditingObject()
         layer.apply()
+        
+        previousTime = .zero
     }
 }

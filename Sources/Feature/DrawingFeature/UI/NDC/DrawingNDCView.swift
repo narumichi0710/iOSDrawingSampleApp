@@ -19,6 +19,8 @@ public struct DrawingNDCView: View {
 
     @State private var isShowCoordinate = false
     @State private var currentCoordinate = ""
+    @State private var isPresentedReplay = false
+
     
     private var selectedType: DrawingObjectType { interactor.setting.type }
     private var selectedColor: DrawingObjectColor { interactor.setting.color }
@@ -29,6 +31,10 @@ public struct DrawingNDCView: View {
     ) {
         let interactor = DrawingInteractor(drawingService: drawingService, file: file)
         interactor.setting.canvasSize = .init(width: 300.0, height: 300.0)
+        _interactor = .init(wrappedValue: interactor)
+    }
+    
+    public init(interactor: DrawingInteractor) {
         _interactor = .init(wrappedValue: interactor)
     }
     
@@ -55,6 +61,13 @@ public struct DrawingNDCView: View {
                 isActive: $isPresentedJsonView2,
                 destination: {
                     JsonView(layer: interactor.ndcLayer)
+                }
+            )
+            NavigationLink(
+                "",
+                isActive: $isPresentedReplay,
+                destination: {
+                    replayContent()
                 }
             )
         }
@@ -114,6 +127,16 @@ public struct DrawingNDCView: View {
                 }
                 Spacer()
             }
+            HStack {
+                Text("Replay Drawing")
+                Button {
+                    interactor.setting.imageSize = .zero
+                    isPresentedReplay = true
+                } label: {
+                    Text("Click")
+                }
+                Spacer()
+            }
             
             Toggle(isOn: $isShowCoordinate) {
                 Text("Visible Canvas Coordinate Grid")
@@ -152,9 +175,42 @@ public struct DrawingNDCView: View {
                 }
             }
         }
-        .frame(width: interactor.setting.canvasSize.width, height:  interactor.setting.canvasSize.height)
+        .frame(
+            width: interactor.setting.canvasSize.width,
+            height:  interactor.setting.canvasSize.height
+        )
     }
 
+    private func replayContent() -> some View {
+        ZStack {
+            GeometryReader { geometryProxy in
+                AsyncImage(
+                    url: URL(string: interactor.file.imageUrl),
+                    content: { image in
+                        image
+                            .resizable()
+                            .scaledToFit()
+                            .onAppear {
+                                if let image = image.asUIImage() {
+                                    interactor.setting.imageSize = image.size
+                                }
+                            }
+                    },
+                    placeholder: { ProgressView() }
+                )
+                .overlay {
+                    if interactor.setting.imageSize != .zero {
+                        DrawingReplayView(layer: interactor.layer)
+                    }
+                }
+            }
+        }
+        .frame(
+            width: interactor.setting.canvasSize.width,
+            height:  interactor.setting.canvasSize.height
+        )
+    }
+    
     private func footer() -> some View {
         VStack(spacing: 16.0) {
             // 色選択

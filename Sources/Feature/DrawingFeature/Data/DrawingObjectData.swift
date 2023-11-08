@@ -73,10 +73,11 @@ public class DrawingPencilObjectData: DrawingObjectData {
         super.init(data: object.data)
     }
     
-    public func onCreatePath(_ point: Coordinate) {
-        points.append(point)
+    public func onCreatePath(_ coordinate: Coordinate) {
+        points.append(coordinate)
         apply()
     }
+
 
     public func onEndDrawing() {}
 

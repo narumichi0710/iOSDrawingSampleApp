@@ -10,7 +10,7 @@ import Foundation
 public struct Coordinate: Codable {
     public var x: Double
     public var y: Double
-    public var createdAt: Double
+    public var interval: Double
 
     public var cgPoint: CGPoint {
         CGPoint(x: x, y: y)
@@ -19,10 +19,10 @@ public struct Coordinate: Codable {
     public init(
         x: Double = .zero,
         y: Double = .zero,
-        createdAt: Double = Date().timeIntervalSince1970
+        interval: Double = .zero
     ) {
         self.x = x
         self.y = y
-        self.createdAt = createdAt
+        self.interval = interval
     }
 }

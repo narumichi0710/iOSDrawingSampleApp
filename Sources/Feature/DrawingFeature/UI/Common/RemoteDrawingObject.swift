@@ -1,13 +1,16 @@
 //
-//  DrawingObject.swift
+//  RemoteDrawingObject.swift
+//  
 //
-//
-//  Created by Narumichi Kubo on 2023/09/23.
+//  Created by Narumichi Kubo on 2023/11/08.
 //
 
 import SwiftUI
+import Repository
 
-public struct DrawingObject: View {
+
+
+public struct RemoteDrawingObject: View {
     @ObservedObject private var object: DrawingObjectData
 
     public init(object: DrawingObjectData) {
@@ -16,34 +19,55 @@ public struct DrawingObject: View {
 
     public var body: some View {
         if let object = object.asPencil() {
-            PencilObject(object: object)
+            RemotePencilObject(object: object)
         } else if let object = object.asArrow() {
-            ArrowObject(object: object)
+            RemoteArrowObject(object: object)
         } else if let object = object.asRectangle() {
-            RectangleObject(object: object)
+            RemoteRectangleObject(object: object)
         } else if let object = object.asCircle() {
-            CircleObject(object: object)
+            RemoteCircleObject(object: object)
         } else if let object = object.asText() {
-            TextObject(object: object)
+            RemoteTextObject(object: object)
         }
     }
 }
 
 /// ペン
-public struct PencilObject: View {
+public struct RemotePencilObject: View {
     @ObservedObject var object: DrawingPencilObjectData
-    private var points: [CGPoint] { object.points.map(\.cgPoint) }
+    @State var points = [CGPoint]()
 
     public var body: some View {
-        Path { path in
-            path.addLines(points)
+        ZStack {
+            Path { path in
+                path.addLines(points)
+            }
+            .stroke(object.color.toUIColor, lineWidth: object.lineWidth)
         }
-        .stroke(object.color.toUIColor, lineWidth: object.lineWidth)
+        .onAppear(perform: addPointsWithInterval)
+    }
+    
+    func addPointsWithInterval() {
+        Task {
+            for coordinate in object.points {
+                let duration = UInt64(coordinate.interval * 1_000_000_000)
+                // 指定されたインターバルだけ待機する
+                try? await Task.sleep(nanoseconds: duration)
+                addPoint(coordinate.cgPoint)
+            }
+        }
+    }
+       
+    @MainActor
+    func addPoint(_ point: CGPoint) {
+        withAnimation {
+            points.append(point)
+        }
     }
 }
 
 /// 矢印
-public struct ArrowObject: View {
+public struct RemoteArrowObject: View {
     @ObservedObject var object: DrawingArrowObjectData
     /// 矢印の先の長さ
     let arrowLength: CGFloat = 24.0
@@ -81,7 +105,7 @@ public struct ArrowObject: View {
 }
 
 /// 矩形
-public struct RectangleObject: View {
+public struct RemoteRectangleObject: View {
     @ObservedObject var object: DrawingRectangleObjectData
 
     public var body: some View {
@@ -99,7 +123,7 @@ public struct RectangleObject: View {
 }
 
 /// 円
-public struct CircleObject: View {
+public struct RemoteCircleObject: View {
     @ObservedObject var object: DrawingCircleObjectData
 
     public var body: some View {
@@ -121,7 +145,7 @@ public struct CircleObject: View {
 }
 
 /// テキスト
-public struct TextObject: View {
+public struct RemoteTextObject: View {
     @ObservedObject var object: DrawingTextObjectData
 
     public var body: some View {

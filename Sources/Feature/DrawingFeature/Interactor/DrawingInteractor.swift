@@ -17,7 +17,7 @@ public class DrawingInteractor: ObservableObject {
     @Published var setting = DrawingSettingData()
     @Published var layer = DrawingLayerData()
     @Published var ndcLayer = DrawingLayerData()
-    
+
     public init(drawingService: DrawingService, file: File) {
         self.drawingService = drawingService
         self.file = file
