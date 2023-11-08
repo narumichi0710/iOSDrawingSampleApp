@@ -101,15 +101,3 @@ public extension DrawingLayerData {
         )
     }
 }
-
-extension Array where Element: DrawingObjectProperty {
-    mutating func appendOrUpdate(_ object: Element) {
-        if let index = firstIndex(where: { $0.id == object.id }) {
-            self[index] = object
-            print("updated object. count: \(count)")
-        } else {
-            append(object)
-            print("added object. count: \(count)")
-        }
-    }
-}
