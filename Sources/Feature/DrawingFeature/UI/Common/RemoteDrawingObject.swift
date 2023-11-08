@@ -143,17 +143,52 @@ public struct RemoteArrowObject: View {
 public struct RemoteRectangleObject: View {
     @ObservedObject var object: DrawingRectangleObjectData
 
+    @State var start: CGPoint?
+    @State var end: CGPoint?
+    
     public var body: some View {
-        Path { path in
-            let rect = CGRect(
-                x: min(object.start.x, object.end.x),
-                y: min(object.start.y, object.end.y),
-                width: abs(object.start.x - object.end.x),
-                height: abs(object.start.y - object.end.y)
-            )
-            path.addRect(rect)
+        ZStack {
+            if let start, let end {
+                Path { path in
+                    let rect = CGRect(
+                        x: min(start.x, end.x),
+                        y: min(start.y, end.y),
+                        width: abs(start.x - end.x),
+                        height: abs(start.y - end.y)
+                    )
+                    path.addRect(rect)
+                }
+                .stroke(object.color.toUIColor, lineWidth: object.lineWidth)
+            }
         }
-        .stroke(object.color.toUIColor, lineWidth: object.lineWidth)
+        .onAppear(perform: addTrajectoryWithInterval)
+    }
+    
+    func addTrajectoryWithInterval() {
+        Task {
+            updateStart(object.start.cgPoint)
+            for coordinate in object.trajectory {
+                let duration = UInt64(coordinate.interval * 1_000_000_000)
+                // 指定されたインターバルだけ待機する
+                try? await Task.sleep(nanoseconds: duration)
+                updateEnd(coordinate.cgPoint)
+            }
+            updateEnd(object.end.cgPoint)
+        }
+    }
+    
+    @MainActor
+    func updateStart(_ start: CGPoint) {
+        withAnimation {
+            self.start = start
+        }
+    }
+    
+    @MainActor
+    func updateEnd(_ end: CGPoint) {
+        withAnimation {
+            self.end = end
+        }
     }
 }
 
