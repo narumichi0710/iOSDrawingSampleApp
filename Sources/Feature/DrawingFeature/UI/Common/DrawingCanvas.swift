@@ -67,7 +67,7 @@ public struct DrawingCanvas: View {
                     .onChanged {
                         let currentTime = $0.time.timeIntervalSince1970
                         let interval = previousTime == .zero ? 0.0 : currentTime - previousTime
-                        let coordinate = Coordinate(x: $0.location.x, y: $0.location.y, interval: interval)
+                        let coordinate = Coordinate(x: $0.location.x, y: $0.location.y, info: .init(interval: interval))
 
                         if $0.startLocation == $0.location {
                             onTapedCanvas(coordinate)
@@ -96,10 +96,11 @@ public struct DrawingCanvas: View {
                         TextInputView(
                             textColor: setting.color,
                             backgroundColor: DrawingTextObjectData.getBackgroudColor(setting.color)
-                        ) {
-                            if !$0.isEmpty {
-                                setting.text = $0
-                                layer.append(DrawingTextObjectData.create(setting, setting.tmpCoordinate))
+                        ) { values in
+                            if let text = values.last?.text, !text.isEmpty {
+                                let inputTrajectory = values.map { Coordinate(info: $0) }
+                                setting.text = text
+                                layer.append(DrawingTextObjectData.create(setting, setting.tmpCoordinate, inputTrajectory))
                             }
                             isShowExternalOverlay = false
                         }

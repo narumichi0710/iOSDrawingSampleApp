@@ -15,19 +15,22 @@ import UIKit
 public struct TextInputView: View {
     private let textColor: Color
     private let backgroundColor: Color
-    private var onFinish: (String) -> Void
+    private var onFinished: ([Coordinate.Info]) -> Void
     @State private var text = ""
+    @State private var inputHistory = [Coordinate.Info]()
     @State private var editorSize: CGSize = .init(width: 20, height: 20)
     @FocusState private var isFocused: Bool
-    
+
+    @State private var previousInputTime: TimeInterval = .zero
+
     public init(
         textColor: DrawingObjectColor,
         backgroundColor: DrawingObjectColor,
-        onFinish: @escaping (String) -> Void
+        onFinished: @escaping ([Coordinate.Info]) -> Void
     ) {
         self.textColor = textColor.toUIColor
         self.backgroundColor = backgroundColor.toUIColor
-        self.onFinish = onFinish
+        self.onFinished = onFinished
     }
 
     public var body: some View {
@@ -40,7 +43,7 @@ public struct TextInputView: View {
                     HStack {
                         Spacer()
                         Button("Finish") {
-                            onFinish(text)
+                            onFinished(inputHistory)
                         }
                         .padding()
                     }
@@ -49,7 +52,7 @@ public struct TextInputView: View {
                     CenteredTextEditor(
                         text: $text,
                         textColor: textColor,
-                        onFinish: { onFinish(text) }
+                        onFinished: { onFinished(inputHistory) }
                     )
                     .focused($isFocused)
                     .frame(width: editorSize.width, height: editorSize.height)
@@ -57,11 +60,16 @@ public struct TextInputView: View {
                         if $0.contains("\n") {
                             text = $0.replacingOccurrences(of: "\n", with: "")
                         }
-                        
                         let textView = UITextView()
                         textView.text = text
                         textView.font = UIFont.systemFont(ofSize: 20)
                         editorSize = textView.sizeThatFits(geometry.size)
+
+                        let currentTime = Date().timeIntervalSince1970
+                        let interval = previousInputTime == .zero ? 0.0 : currentTime - previousInputTime
+                        let info = Coordinate.Info(interval: interval, text: $0)
+                        inputHistory.append(info)
+                        previousInputTime = currentTime
                     }
                     .background(
                         RoundedRectangle(cornerRadius: 10, style: .continuous)
@@ -81,16 +89,16 @@ public struct TextInputView: View {
 public struct CenteredTextEditor: UIViewRepresentable {
     @Binding private var text: String
     private let textColor: Color
-    private let onFinish: () -> Void
+    private let onFinished: () -> Void
     
     public init(
         text: Binding<String>,
         textColor: Color,
-        onFinish: @escaping () -> Void = {}
+        onFinished: @escaping () -> Void = {}
     ) {
         _text = text
         self.textColor = textColor
-        self.onFinish = onFinish
+        self.onFinished = onFinished
     }
     
     public func makeUIView(context: Context) -> UITextView {
@@ -131,7 +139,7 @@ public struct CenteredTextEditor: UIViewRepresentable {
         ) -> Bool {
            if text == "\n" {
                textView.resignFirstResponder()
-               parent.onFinish()
+               parent.onFinished()
                return false
            }
            return true

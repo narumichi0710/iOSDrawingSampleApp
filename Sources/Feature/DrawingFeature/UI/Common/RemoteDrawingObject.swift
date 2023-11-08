@@ -50,7 +50,8 @@ public struct RemotePencilObject: View {
     func addTrajectoryWithInterval() {
         Task {
             for coordinate in object.trajectory {
-                let duration = UInt64(coordinate.interval * 1_000_000_000)
+                guard let interval = coordinate.info?.interval else { return }
+                let duration = UInt64(interval * 1_000_000_000)
                 // 指定されたインターバルだけ待機する
                 try? await Task.sleep(nanoseconds: duration)
                 addTrajectory(coordinate.cgPoint)
@@ -115,7 +116,8 @@ public struct RemoteArrowObject: View {
         Task {
             updateStart(object.start.cgPoint)
             for coordinate in object.trajectory {
-                let duration = UInt64(coordinate.interval * 1_000_000_000)
+                guard let interval = coordinate.info?.interval else { return }
+                let duration = UInt64(interval * 1_000_000_000)
                 // 指定されたインターバルだけ待機する
                 try? await Task.sleep(nanoseconds: duration)
                 updateEnd(coordinate.cgPoint)
@@ -168,7 +170,8 @@ public struct RemoteRectangleObject: View {
         Task {
             updateStart(object.start.cgPoint)
             for coordinate in object.trajectory {
-                let duration = UInt64(coordinate.interval * 1_000_000_000)
+                guard let interval = coordinate.info?.interval else { return }
+                let duration = UInt64(interval * 1_000_000_000)
                 // 指定されたインターバルだけ待機する
                 try? await Task.sleep(nanoseconds: duration)
                 updateEnd(coordinate.cgPoint)
@@ -225,7 +228,8 @@ public struct RemoteCircleObject: View {
         Task {
             updateStart(object.start.cgPoint)
             for coordinate in object.trajectory {
-                let duration = UInt64(coordinate.interval * 1_000_000_000)
+                guard let interval = coordinate.info?.interval else { return }
+                let duration = UInt64(interval * 1_000_000_000)
                 // 指定されたインターバルだけ待機する
                 try? await Task.sleep(nanoseconds: duration)
                 updateEnd(coordinate.cgPoint)
@@ -252,16 +256,41 @@ public struct RemoteCircleObject: View {
 /// テキスト
 public struct RemoteTextObject: View {
     @ObservedObject var object: DrawingTextObjectData
+    @State var text: String?
 
     public var body: some View {
-        Text(object.text)
-            .font(.system(size: 20))
-            .padding()
-            .background(
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(object.backgroundColor.toUIColor)
-            )
-            .foregroundColor(object.color.toUIColor)
-            .position(x: object.start.x, y: object.end.y)
+        ZStack {
+            if let text {
+                Text(text)
+                    .font(.system(size: 20))
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .fill(object.backgroundColor.toUIColor)
+                    )
+                    .foregroundColor(object.color.toUIColor)
+                    .position(x: object.start.x, y: object.end.y)
+            }
+        }
+        .onAppear(perform: addTrajectoryWithInterval)
+    }
+    
+    func addTrajectoryWithInterval() {
+        Task {
+            for coordinate in object.trajectory {
+                guard let interval = coordinate.info?.interval else { return }
+                guard let text = coordinate.info?.text else { return }
+
+                let duration = UInt64(interval * 1_000_000_000)
+                // 指定されたインターバルだけ待機する
+                try? await Task.sleep(nanoseconds: duration)
+                updateText(text)
+            }
+        }
+    }
+    
+    @MainActor
+    func updateText(_ value: String) {
+        text = value
     }
 }

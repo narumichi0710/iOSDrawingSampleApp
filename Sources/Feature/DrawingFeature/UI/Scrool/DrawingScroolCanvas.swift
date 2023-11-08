@@ -90,10 +90,11 @@ public struct DrawingScroolCanvas: View {
                         TextInputView(
                             textColor: setting.color,
                             backgroundColor: DrawingTextObjectData.getBackgroudColor(setting.color)
-                        ) {
-                            if !$0.isEmpty {
-                                setting.text = $0
-                                layer.append(DrawingTextObjectData.create(setting, setting.tmpCoordinate))
+                        ) { values in
+                            if let text = values.last?.text, !text.isEmpty {
+                                let inputTrajectory = values.map { Coordinate(info: $0) }
+                                setting.text = text
+                                layer.append(DrawingTextObjectData.create(setting, setting.tmpCoordinate, inputTrajectory))
                             }
                             isShowExternalOverlay = false
                         }

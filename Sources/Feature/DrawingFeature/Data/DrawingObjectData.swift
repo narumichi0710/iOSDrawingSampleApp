@@ -222,7 +222,8 @@ public class DrawingTextObjectData: DrawingObjectData {
     
     public static func create(
         _ setting: DrawingSettingData,
-        _ coordinate: Coordinate
+        _ coordinate: Coordinate,
+        _ trajectory: [Coordinate]
     ) -> DrawingTextObjectData {
         .init(entity: .init(
             id: UUID(),
@@ -233,7 +234,7 @@ public class DrawingTextObjectData: DrawingObjectData {
             color: setting.color,
             backgroundColor: getBackgroudColor(setting.color),
             text: setting.text,
-            trajectory: [coordinate]
+            trajectory: trajectory
         ))
     }
     
