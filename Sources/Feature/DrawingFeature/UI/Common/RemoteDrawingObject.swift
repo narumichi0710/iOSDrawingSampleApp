@@ -69,38 +69,73 @@ public struct RemotePencilObject: View {
 /// 矢印
 public struct RemoteArrowObject: View {
     @ObservedObject var object: DrawingArrowObjectData
+    @State var start: CGPoint?
+    @State var end: CGPoint?
+
     /// 矢印の先の長さ
     let arrowLength: CGFloat = 24.0
     /// 角度（45度）
     let arrowAngle: CGFloat = .pi / 4
     
     public var body: some View {
-        Path { path in
-            // 線の描画
-            path.move(to: object.start.cgPoint)
-            path.addLine(to: object.end.cgPoint)
-           
-            // 角度の計算
-            let dx = object.end.x - object.start.x
-            let dy = object.end.y - object.start.y
-            let theta = atan2(dy, dx)
-
-            // 矢印の羽の点を計算
-            let wing1 = CGPoint(
-                x: object.start.x + arrowLength * cos(theta + arrowAngle),
-                y: object.start.y + arrowLength * sin(theta + arrowAngle)
-            )
-            let wing2 = CGPoint(
-                x: object.start.x + arrowLength * cos(theta - arrowAngle),
-                y: object.start.y + arrowLength * sin(theta - arrowAngle)
-            )
-           
-            // 矢印の羽を描画
-            path.move(to: wing1)
-            path.addLine(to: object.start.cgPoint)
-            path.addLine(to: wing2)
+        ZStack {
+            if let start, let end {
+                Path { path in
+                    // 線の描画
+                    path.move(to: start)
+                    path.addLine(to: end)
+                    
+                    // 角度の計算
+                    let dx = end.x - start.x
+                    let dy = end.y - start.y
+                    let theta = atan2(dy, dx)
+                    
+                    // 矢印の羽の点を計算
+                    let wing1 = CGPoint(
+                        x: start.x + arrowLength * cos(theta + arrowAngle),
+                        y: start.y + arrowLength * sin(theta + arrowAngle)
+                    )
+                    let wing2 = CGPoint(
+                        x: start.x + arrowLength * cos(theta - arrowAngle),
+                        y: start.y + arrowLength * sin(theta - arrowAngle)
+                    )
+                    
+                    // 矢印の羽を描画
+                    path.move(to: wing1)
+                    path.addLine(to: start)
+                    path.addLine(to: wing2)
+                }
+                .stroke(object.color.toUIColor, lineWidth: object.lineWidth)
+            }
         }
-        .stroke(object.color.toUIColor, lineWidth: object.lineWidth)
+        .onAppear(perform: addTrajectoryWithInterval)
+    }
+    
+    func addTrajectoryWithInterval() {
+        Task {
+            updateStart(object.start.cgPoint)
+            for coordinate in object.trajectory {
+                let duration = UInt64(coordinate.interval * 1_000_000_000)
+                // 指定されたインターバルだけ待機する
+                try? await Task.sleep(nanoseconds: duration)
+                updateEnd(coordinate.cgPoint)
+            }
+            updateEnd(object.end.cgPoint)
+        }
+    }
+    
+    @MainActor
+    func updateStart(_ start: CGPoint) {
+        withAnimation {
+            self.start = start
+        }
+    }
+    
+    @MainActor
+    func updateEnd(_ end: CGPoint) {
+        withAnimation {
+            self.end = end
+        }
     }
 }
 
