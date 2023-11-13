@@ -63,17 +63,17 @@ public struct LocalArrowObject: View {
 
             // 矢印の羽の点を計算
             let wing1 = CGPoint(
-                x: object.start.x + arrowLength * cos(theta + arrowAngle),
-                y: object.start.y + arrowLength * sin(theta + arrowAngle)
+                x: object.end.x - arrowLength * cos(theta + arrowAngle),
+                y: object.end.y - arrowLength * sin(theta + arrowAngle)
             )
             let wing2 = CGPoint(
-                x: object.start.x + arrowLength * cos(theta - arrowAngle),
-                y: object.start.y + arrowLength * sin(theta - arrowAngle)
+                x: object.end.x - arrowLength * cos(theta - arrowAngle),
+                y: object.end.y - arrowLength * sin(theta - arrowAngle)
             )
-           
+
             // 矢印の羽を描画
             path.move(to: wing1)
-            path.addLine(to: object.start.cgPoint)
+            path.addLine(to: object.end.cgPoint)
             path.addLine(to: wing2)
         }
         .stroke(object.color.toUIColor, lineWidth: object.lineWidth)
