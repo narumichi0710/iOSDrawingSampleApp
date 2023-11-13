@@ -69,7 +69,7 @@ public struct DrawingScroolCanvas: View {
                             onTapedCanvas(.init(x: $0.location.x, y: $0.location.y))
                         } else {
                             guard let object = layer.editingObject else {
-                                onCreatedDrawing(.init(x: $0.location.x, y: $0.location.y))
+                                onCreatedDrawing(.init(x: $0.startLocation.x, y: $0.startLocation.y), .init(x: $0.location.x, y: $0.location.y))
                                 return
                             }
                             onUpdatedDrawing(object, .init(x: $0.location.x, y: $0.location.y))
@@ -93,8 +93,16 @@ public struct DrawingScroolCanvas: View {
                         ) { values in
                             if let text = values.last?.text, !text.isEmpty {
                                 let inputTrajectory = values.map { Coordinate(info: $0) }
-                                setting.text = text
-                                layer.append(DrawingTextObjectData.create(setting, setting.tmpCoordinate, inputTrajectory))
+                                if let end = inputTrajectory.last {
+                                    
+                                    setting.text = text
+                                    layer.append(DrawingTextObjectData.create(
+                                        setting,
+                                        setting.tmpCoordinate,
+                                        end,
+                                        inputTrajectory
+                                    ))
+                                }
                             }
                             isShowExternalOverlay = false
                         }
@@ -160,38 +168,37 @@ public struct DrawingScroolCanvas: View {
         }
     }
     
-    private func onCreatedDrawing(_ coordinate: Coordinate) {
+    private func onCreatedDrawing(_ start: Coordinate, _ end: Coordinate) {
         switch setting.type {
         case .pencil:
-            layer.editingObject = DrawingPencilObjectData.create(setting, coordinate)
+            layer.editingObject =  DrawingPencilObjectData.create(setting, start, end)
         case .arrowLine:
-            layer.editingObject = DrawingArrowObjectData.create(setting, coordinate)
+            layer.editingObject = DrawingArrowObjectData.create(setting, start, end)
         case .rectangle:
-            layer.editingObject = DrawingRectangleObjectData.create(setting, coordinate)
+            layer.editingObject = DrawingRectangleObjectData.create(setting, start, end)
         case .circle:
-            layer.editingObject = DrawingCircleObjectData.create(setting, coordinate)
+            layer.editingObject = DrawingCircleObjectData.create(setting, start, end)
         default:
             break
         }
         layer.apply()
     }
 
-    private func onUpdatedDrawing(_ object: DrawingObjectData, _ coordinate: Coordinate) {
+    private func onUpdatedDrawing(_ object: DrawingObjectData, _ end: Coordinate) {
         // 軌跡を追加
-        object.onAddRrajectory(coordinate)
+        object.onAddRrajectory(end)
 
         if object.asPencil() != nil {
-            object.onEnd(coordinate)
+            object.onEnd(end)
         } else if object.asArrow() != nil {
-            object.onEnd(coordinate)
+            object.onEnd(end)
         } else if object.asRectangle() != nil {
-            object.onEnd(coordinate)
+            object.onEnd(end)
         } else if object.asCircle() != nil {
-            object.onEnd(coordinate)
+            object.onEnd(end)
         }
         layer.apply()
     }
-
     private func onEndedDrawing(_ coordinate: Coordinate) {
         layer.editingObject?.onEnd(coordinate)
         layer.appendEditingObject()

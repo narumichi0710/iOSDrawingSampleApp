@@ -124,9 +124,6 @@ public class DrawingInteractor: ObservableObject {
 
         // キャンバス座標をNDCに変換
         let ndcLayer = convertCanvasToNDC(applyLayer, oldCanvasSize)
-
-        // ログ表示のため値を追加
-        self.ndcLayer = ndcLayer
         printLayer("ndcLayer. canvasSize: \(setting.canvasSize.width)x\(setting.canvasSize.height),", ndcLayer)
 
         // NDCを新しいキャンバス座標に変換

@@ -24,17 +24,17 @@ public class DrawingLayerData: Equatable, ObservableObject {
     public init(_ entity: DrawingLayerEntity) {
         var objects = [DrawingObjectData]()
         
-        let pencilObjects = entity.pencilObjects.map { DrawingPencilObjectData(entity: $0) }
-        let arrowObjects = entity.arrowObjects.map { DrawingArrowObjectData(entity: $0) }
-        let rectangleObjects = entity.rectangleObjects.map { DrawingRectangleObjectData(entity: $0) }
-        let circleObjects = entity.circleObjects .map { DrawingCircleObjectData(entity: $0) }
-        let textObjects = entity.textObjects.map { DrawingTextObjectData(entity: $0) }
+        let pencilObjects = entity.pencilObjects?.map { DrawingPencilObjectData(entity: $0) }
+        let arrowObjects = entity.arrowObjects?.map { DrawingArrowObjectData(entity: $0) }
+        let rectangleObjects = entity.rectangleObjects?.map { DrawingRectangleObjectData(entity: $0) }
+        let circleObjects = entity.circleObjects?.map { DrawingCircleObjectData(entity: $0) }
+        let textObjects = entity.textObjects?.map { DrawingTextObjectData(entity: $0) }
 
-        objects.append(contentsOf: pencilObjects)
-        objects.append(contentsOf: arrowObjects)
-        objects.append(contentsOf: rectangleObjects)
-        objects.append(contentsOf: circleObjects)
-        objects.append(contentsOf: textObjects)
+        objects.append(contentsOf: pencilObjects ?? [])
+        objects.append(contentsOf: arrowObjects ?? [])
+        objects.append(contentsOf: rectangleObjects ?? [])
+        objects.append(contentsOf: circleObjects ?? [])
+        objects.append(contentsOf: textObjects ?? [])
 
         self.id = entity.id
         self.objects = objects
@@ -120,11 +120,11 @@ public extension DrawingLayerData {
 
         return .init(
             id: id,
-            pencilObjects: pencilEntities,
-            arrowObjects: arrowEntities,
-            rectangleObjects: rectangleEntities,
-            circleObjects: circleEntities,
-            textObjects: textEntities
+            pencilObjects: pencilEntities.isEmpty ? nil : pencilEntities,
+            arrowObjects: arrowEntities.isEmpty ? nil : arrowEntities,
+            rectangleObjects: rectangleEntities.isEmpty ? nil : rectangleEntities,
+            circleObjects: circleEntities.isEmpty ? nil : circleEntities,
+            textObjects: textEntities.isEmpty ? nil : textEntities
         )
     }
 }

@@ -121,6 +121,10 @@ public struct DrawingNDCView: View {
             HStack {
                 Text("Check NDC Json Data")
                 Button {
+                    interactor.ndcLayer = interactor.convertCanvasToNDC(
+                        interactor.layer.copy(),
+                        interactor.setting.canvasSize
+                    )
                     isPresentedJsonView2 = true
                 } label: {
                     Text("Click")
@@ -137,7 +141,15 @@ public struct DrawingNDCView: View {
                 }
                 Spacer()
             }
-            
+            HStack {
+                Text("Apply DC -> NDC → DC")
+                Button {
+                    interactor.convertCoordinates_2(interactor.setting.canvasSize)
+                } label: {
+                    Text("Click")
+                }
+                Spacer()
+            }
             Toggle(isOn: $isShowCoordinate) {
                 Text("Visible Canvas Coordinate Grid")
             }

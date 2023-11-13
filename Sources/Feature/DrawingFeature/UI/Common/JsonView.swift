@@ -32,6 +32,7 @@ public struct JsonView: View {
                     Text("\(jsonData.count) bytes")
                         .padding()
                     Text(jsonString)
+                        .textSelection(.enabled)
                         .font(.body)
                         .padding()
                         .border(Color.gray, width: 1)
