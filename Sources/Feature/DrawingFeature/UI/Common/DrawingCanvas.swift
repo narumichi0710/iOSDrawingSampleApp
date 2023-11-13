@@ -67,22 +67,23 @@ public struct DrawingCanvas: View {
                     .onChanged {
                         let currentTime = $0.time.timeIntervalSince1970
                         let interval = previousTime == .zero ? 0.0 : currentTime - previousTime
-                        let coordinate = Coordinate(x: $0.location.x, y: $0.location.y, info: .init(interval: interval))
+                        let start = Coordinate(x: $0.startLocation.x, y: $0.startLocation.y, info: .init(interval: interval))
+                        let end = Coordinate(x: $0.location.x, y: $0.location.y, info: .init(interval: interval))
 
                         if $0.startLocation == $0.location {
-                            onTapedCanvas(coordinate)
+                            onTapedCanvas(start)
                         } else {
                             guard let object = layer.editingObject else {
-                                onCreatedDrawing(coordinate)
+                                onCreatedDrawing(start, .init())
                                 return
                             }
-                            onUpdatedDrawing(object, coordinate)
+                            onUpdatedDrawing(object, end)
                         }
                         previousTime = currentTime
-                        currentCoordinate = "x: \(Int($0.location.x)), y: \(Int($0.location.y))"
+                        currentCoordinate = "start x: \(Int($0.startLocation.x)), start y: \(Int($0.startLocation.y)), end x: \(Int($0.location.x)), end y: \(Int($0.location.y))"
                     }.onEnded {
-                        let coordinate = Coordinate(x: $0.location.x, y: $0.location.y)
-                        onEndedDrawing(coordinate)
+                        let end = Coordinate(x: $0.location.x, y: $0.location.y)
+                        onEndedDrawing(end)
                     }
             )
     }
@@ -99,8 +100,16 @@ public struct DrawingCanvas: View {
                         ) { values in
                             if let text = values.last?.text, !text.isEmpty {
                                 let inputTrajectory = values.map { Coordinate(info: $0) }
-                                setting.text = text
-                                layer.append(DrawingTextObjectData.create(setting, setting.tmpCoordinate, inputTrajectory))
+                                let start = setting.tmpCoordinate
+                                if let end = inputTrajectory.last {
+                                    setting.text = text
+                                    layer.append(DrawingTextObjectData.create(
+                                        setting,
+                                        start,
+                                        end,
+                                        inputTrajectory
+                                    ))
+                                }
                             }
                             isShowExternalOverlay = false
                         }
@@ -167,34 +176,38 @@ public struct DrawingCanvas: View {
         }
     }
     
-    private func onCreatedDrawing(_ coordinate: Coordinate) {
+    private func onCreatedDrawing(_ start: Coordinate, _ end: Coordinate) {
         switch setting.type {
         case .pencil:
-            layer.editingObject =  DrawingPencilObjectData.create(setting, coordinate)
+            layer.editingObject =  DrawingPencilObjectData.create(setting, start, end)
         case .arrowLine:
-            layer.editingObject = DrawingArrowObjectData.create(setting, coordinate)
+            layer.editingObject = DrawingArrowObjectData.create(setting, start, end)
         case .rectangle:
-            layer.editingObject = DrawingRectangleObjectData.create(setting, coordinate)
+            layer.editingObject = DrawingRectangleObjectData.create(setting, start, end)
         case .circle:
-            layer.editingObject = DrawingCircleObjectData.create(setting, coordinate)
+            layer.editingObject = DrawingCircleObjectData.create(setting, start, end)
+        case .oval:
+            layer.editingObject = DrawingOvalObjectData.create(setting, start, end)
         default:
             break
         }
         layer.apply()
     }
 
-    private func onUpdatedDrawing(_ object: DrawingObjectData, _ coordinate: Coordinate) {
+    private func onUpdatedDrawing(_ object: DrawingObjectData, _ end: Coordinate) {
         // 軌跡を追加
-        object.onAddRrajectory(coordinate)
+        object.onAddRrajectory(end)
 
         if object.asPencil() != nil {
-            object.onEnd(coordinate)
+            object.onEnd(end)
         } else if object.asArrow() != nil {
-            object.onEnd(coordinate)
+            object.onEnd(end)
         } else if object.asRectangle() != nil {
-            object.onEnd(coordinate)
+            object.onEnd(end)
         } else if object.asCircle() != nil {
-            object.onEnd(coordinate)
+            object.onEnd(end)
+        } else if object.asOval() != nil {
+            object.onEnd(end)
         }
         layer.apply()
     }

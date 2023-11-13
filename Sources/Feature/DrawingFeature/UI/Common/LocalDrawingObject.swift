@@ -15,16 +15,20 @@ public struct LocalDrawingObject: View {
     }
 
     public var body: some View {
-        if let object = object.asPencil() {
-            LocalPencilObject(object: object)
-        } else if let object = object.asArrow() {
-            LocalArrowObject(object: object)
-        } else if let object = object.asRectangle() {
-            LocalRectangleObject(object: object)
-        } else if let object = object.asCircle() {
-            LocalCircleObject(object: object)
-        } else if let object = object.asText() {
-            LocalTextObject(object: object)
+        if object.end.cgPoint != .zero {
+            if let object = object.asPencil() {
+                LocalPencilObject(object: object)
+            } else if let object = object.asArrow() {
+                LocalArrowObject(object: object)
+            } else if let object = object.asRectangle() {
+                LocalRectangleObject(object: object)
+            } else if let object = object.asCircle() {
+                LocalCircleObject(object: object)
+            } else if let object = object.asOval() {
+                LocalOvalObject(object: object)
+            } else if let object = object.asText() {
+                LocalTextObject(object: object)
+            }
         }
     }
 }
@@ -55,7 +59,7 @@ public struct LocalArrowObject: View {
             // 線の描画
             path.move(to: object.start.cgPoint)
             path.addLine(to: object.end.cgPoint)
-           
+
             // 角度の計算
             let dx = object.end.x - object.start.x
             let dy = object.end.y - object.start.y
@@ -115,6 +119,24 @@ public struct LocalCircleObject: View {
             
             // 中心点と半径を使って円を追加
             path.addEllipse(in: CGRect(x: center.x - radius, y: center.y - radius, width: diameter, height: diameter))
+        }
+        .stroke(object.color.toUIColor, lineWidth: object.lineWidth)
+    }
+}
+
+/// 楕円
+public struct LocalOvalObject: View {
+    @ObservedObject var object: DrawingOvalObjectData
+    
+    public var body: some View {
+        Path { path in
+            let rect = CGRect(
+                x: min(object.start.x, object.end.x),
+                y: min(object.start.y, object.end.y),
+                width: abs(object.start.x - object.end.x),
+                height: abs(object.start.y - object.end.y)
+            )
+            path.addEllipse(in: rect)
         }
         .stroke(object.color.toUIColor, lineWidth: object.lineWidth)
     }

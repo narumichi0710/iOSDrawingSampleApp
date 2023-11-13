@@ -243,7 +243,7 @@ public struct DrawingNDCView: View {
                         Image(systemName: type.iconName)
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 20, height: 20)
+                            .frame(width: 16, height: 16)
                             .foregroundColor(selectedType == type ? .white : .gray)
                             .padding()
                             .background(selectedType == type ? Color.blue : Color.clear)

@@ -16,6 +16,8 @@ public enum DrawingObjectType: String, Codable, CaseIterable {
     case rectangle
     /// 円
     case circle
+    /// 楕円
+    case oval
     /// テキスト
     case text
 
@@ -29,6 +31,8 @@ public enum DrawingObjectType: String, Codable, CaseIterable {
             return "rectangle"
         case .circle:
             return "circle"
+        case .oval:
+            return "oval"
         case .text:
             return "textformat"
         }

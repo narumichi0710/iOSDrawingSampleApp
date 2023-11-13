@@ -87,17 +87,18 @@ public class DrawingPencilObjectData: DrawingObjectData {
 
     public static func create(
         _ setting: DrawingSettingData,
-        _ coordinate: Coordinate
+        _ start: Coordinate,
+        _ end: Coordinate
     ) -> DrawingPencilObjectData {
         .init(entity: .init(
             id: UUID(),
             type: .pencil,
             state: .created,
-            start: coordinate,
-            end: coordinate,
+            start: start,
+            end: end,
             color: setting.color,
             lineWidth: setting.lineWidth,
-            trajectory: [coordinate]
+            trajectory: [start]
         ))
     }
 }
@@ -120,17 +121,18 @@ public class DrawingArrowObjectData: DrawingObjectData {
 
     public static func create(
         _ setting: DrawingSettingData,
-        _ coordinate: Coordinate
+        _ start: Coordinate,
+        _ end: Coordinate
     ) -> DrawingArrowObjectData {
         .init(entity: .init(
             id: UUID(),
             type: .arrowLine,
             state: .created,
-            start: coordinate,
-            end: coordinate,
+            start: start,
+            end: end,
             color: setting.color,
             lineWidth: setting.lineWidth,
-            trajectory: [coordinate]
+            trajectory: [start]
         ))
     }
 }
@@ -153,17 +155,18 @@ public class DrawingRectangleObjectData: DrawingObjectData {
     
     public static func create(
         _ setting: DrawingSettingData,
-        _ coordinate: Coordinate
+        _ start: Coordinate,
+        _ end: Coordinate
     ) -> DrawingRectangleObjectData {
         .init(entity: .init(
             id: UUID(),
             type: .rectangle,
             state: .created,
-            start: coordinate,
-            end: coordinate,
+            start: start,
+            end: end,
             color: setting.color,
             lineWidth: setting.lineWidth,
-            trajectory: [coordinate]
+            trajectory: [start]
         ))
     }
 }
@@ -186,21 +189,55 @@ public class DrawingCircleObjectData: DrawingObjectData {
     
     public static func create(
         _ setting: DrawingSettingData,
-        _ coordinate: Coordinate
+        _ start: Coordinate,
+        _ end: Coordinate
     ) -> DrawingCircleObjectData {
         .init(entity: .init(
             id: UUID(),
             type: .circle,
             state: .created,
-            start: coordinate,
-            end: coordinate,
+            start: start,
+            end: end,
             color: setting.color,
             lineWidth: setting.lineWidth,
-            trajectory: [coordinate]
+            trajectory: [start]
         ))
     }
 }
 
+/// 楕円
+public class DrawingOvalObjectData: DrawingObjectData {
+    public var lineWidth: Double
+
+    public init(entity: DrawingOvalObjectEntity) {
+        lineWidth = entity.lineWidth
+        super.init(data: entity)
+    }
+    
+    public init(
+        object: DrawingOvalObjectData
+    ) {
+        self.lineWidth = object.lineWidth
+        super.init(data: object.data)
+    }
+    
+    public static func create(
+        _ setting: DrawingSettingData,
+        _ start: Coordinate,
+        _ end: Coordinate
+    ) -> DrawingOvalObjectData {
+        .init(entity: .init(
+            id: UUID(),
+            type: .circle,
+            state: .created,
+            start: start,
+            end: end,
+            color: setting.color,
+            lineWidth: setting.lineWidth,
+            trajectory: [start]
+        ))
+    }
+}
 /// テキスト
 public class DrawingTextObjectData: DrawingObjectData {
     public var backgroundColor: DrawingObjectColor
@@ -222,15 +259,16 @@ public class DrawingTextObjectData: DrawingObjectData {
     
     public static func create(
         _ setting: DrawingSettingData,
-        _ coordinate: Coordinate,
+        _ start: Coordinate,
+        _ end: Coordinate,
         _ trajectory: [Coordinate]
     ) -> DrawingTextObjectData {
         .init(entity: .init(
             id: UUID(),
             type: .text,
             state: .created,
-            start: coordinate,
-            end: coordinate,
+            start: start,
+            end: end,
             color: setting.color,
             backgroundColor: getBackgroudColor(setting.color),
             text: setting.text,
@@ -269,6 +307,9 @@ public extension DrawingObjectData {
     }
     func asCircle() -> DrawingCircleObjectData? {
         self as? DrawingCircleObjectData
+    }
+    func asOval() -> DrawingOvalObjectData? {
+        self as? DrawingOvalObjectData
     }
     func asText() -> DrawingTextObjectData? {
         self as? DrawingTextObjectData

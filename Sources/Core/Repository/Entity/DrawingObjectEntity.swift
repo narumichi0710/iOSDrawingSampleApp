@@ -109,6 +109,29 @@ public struct DrawingCircleObjectEntity: DrawingObjectProperty, Codable {
     }
 }
 
+/// 楕円
+public struct DrawingOvalObjectEntity: DrawingObjectProperty, Codable {
+    public var id: UUID
+    public var type: DrawingObjectType
+    public var state: DrawingObjectState
+    public var start: Coordinate
+    public var end: Coordinate
+    public var color: DrawingObjectColor
+    public var lineWidth: Double
+    public var trajectory: [Coordinate]
+    
+    public init(id: UUID, type: DrawingObjectType, state: DrawingObjectState, start: Coordinate, end: Coordinate, color: DrawingObjectColor, lineWidth: Double, trajectory: [Coordinate]) {
+        self.id = id
+        self.type = type
+        self.state = state
+        self.start = start
+        self.end = end
+        self.color = color
+        self.lineWidth = lineWidth
+        self.trajectory = trajectory
+    }
+}
+
 /// テキスト
 public struct DrawingTextObjectEntity: DrawingObjectProperty, Codable {
     public var id: UUID

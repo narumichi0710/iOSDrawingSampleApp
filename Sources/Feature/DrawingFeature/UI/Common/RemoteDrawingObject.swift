@@ -26,6 +26,8 @@ public struct RemoteDrawingObject: View {
             RemoteRectangleObject(object: object)
         } else if let object = object.asCircle() {
             RemoteCircleObject(object: object)
+        } else if let object = object.asOval() {
+            RemoteOvalObject(object: object)
         } else if let object = object.asText() {
             RemoteTextObject(object: object)
         }
@@ -217,6 +219,61 @@ public struct RemoteCircleObject: View {
                     
                     // 中心点と半径を使って円を追加
                     path.addEllipse(in: CGRect(x: center.x - radius, y: center.y - radius, width: diameter, height: diameter))
+                }
+                .stroke(object.color.toUIColor, lineWidth: object.lineWidth)
+            }
+        }
+        .onAppear(perform: addTrajectoryWithInterval)
+    }
+    
+    func addTrajectoryWithInterval() {
+        Task {
+            updateStart(object.start.cgPoint)
+            for coordinate in object.trajectory {
+                guard let interval = coordinate.info?.interval else { return }
+                let duration = UInt64(interval * 1_000_000_000)
+                // 指定されたインターバルだけ待機する
+                try? await Task.sleep(nanoseconds: duration)
+                updateEnd(coordinate.cgPoint)
+            }
+            updateEnd(object.end.cgPoint)
+        }
+    }
+    
+    @MainActor
+    func updateStart(_ start: CGPoint) {
+        withAnimation {
+            self.start = start
+        }
+    }
+    
+    @MainActor
+    func updateEnd(_ end: CGPoint) {
+        withAnimation {
+            self.end = end
+        }
+    }
+}
+
+
+/// 楕円
+public struct RemoteOvalObject: View {
+    @ObservedObject var object: DrawingOvalObjectData
+
+    @State var start: CGPoint?
+    @State var end: CGPoint?
+    
+    public var body: some View {
+        ZStack {
+            if let start, let end {
+                Path { path in
+                    let rect = CGRect(
+                        x: min(start.x, end.x),
+                        y: min(start.y, end.y),
+                        width: abs(start.x - end.x),
+                        height: abs(start.y - end.y)
+                    )
+                    path.addEllipse(in: rect)
                 }
                 .stroke(object.color.toUIColor, lineWidth: object.lineWidth)
             }
